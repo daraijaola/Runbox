@@ -2,3 +2,7 @@ node_modules/
 dist/
 .env
 *.log
+ecosystem.config.cjs
+telegram_agent.py
+contracts/spending-cap/target/
+packages/runbox-mcp/node_modules/
