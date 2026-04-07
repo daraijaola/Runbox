@@ -1,0 +1,32 @@
+{
+  "name": "@runbox/mcp",
+  "version": "1.0.0",
+  "description": "RunBox MCP server — code execution tool for Claude Desktop, Cursor, and MCP-compatible agents",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "runbox-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "runbox",
+    "mcp",
+    "claude",
+    "cursor",
+    "ai-agents",
+    "code-execution"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0"
+  }
+}
