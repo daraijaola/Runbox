@@ -1,17 +1,17 @@
-# @runbox/client
+# runbox-client
 
 RunBox client SDK — pay-per-use isolated code execution for AI agents on Stellar.
 
 ## Install
 
 ```bash
-npm install @runbox/client
+npm install runbox-client
 ```
 
 ## Usage
 
 ```typescript
-import { RunBox } from "@runbox/client";
+import { RunBox } from "runbox-client";
 
 const box = new RunBox();
 

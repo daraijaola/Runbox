@@ -1,7 +1,7 @@
 {
-  "name": "@runbox/client",
+  "name": "runbox-client",
   "version": "1.0.0",
-  "description": "RunBox client SDK — pay-per-use code execution for AI agents on Stellar",
+  "description": "RunBox client SDK \u2014 pay-per-use code execution for AI agents on Stellar",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,12 +11,22 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["runbox", "stellar", "x402", "mpp", "ai-agents", "code-execution", "sandbox"],
+  "keywords": [
+    "runbox",
+    "stellar",
+    "x402",
+    "mpp",
+    "ai-agents",
+    "code-execution",
+    "sandbox"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

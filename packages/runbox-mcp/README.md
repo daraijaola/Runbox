@@ -1,4 +1,4 @@
-# @runbox/mcp
+# runbox-mcp
 
 MCP (Model Context Protocol) server for RunBox — lets Claude Desktop, Cursor, and any MCP-compatible agent execute code via RunBox.
 
@@ -11,7 +11,7 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "runbox": {
       "command": "npx",
-      "args": ["@runbox/mcp"],
+      "args": ["runbox-mcp"],
       "env": {
         "RUNBOX_SESSION_TOKEN": "<your_session_token>"
       }

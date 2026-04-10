@@ -1,7 +1,7 @@
 {
-  "name": "@runbox/mcp",
+  "name": "runbox-mcp",
   "version": "1.0.0",
-  "description": "RunBox MCP server — code execution tool for Claude Desktop, Cursor, and MCP-compatible agents",
+  "description": "RunBox MCP server \u2014 code execution tool for Claude Desktop, Cursor, and MCP-compatible agents",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

@@ -32,7 +32,7 @@ Built for the **Stellar Hacks: Agents** hackathon. Purpose-built for [OpenClaw](
 | **Streaming Output** | SSE endpoint streams stdout/stderr in real-time as code runs |
 | **File I/O** | Send files into the sandbox, get output files back (base64) |
 | **MCP Server** | Claude Desktop and Cursor integration via Model Context Protocol |
-| **npm Client SDK** | `@runbox/client` — one-line integration for any agent |
+| **npm Client SDK** | `runbox-client` — one-line integration for any agent |
 | **Soroban Spending Cap** | On-chain budget enforcement smart contract |
 | **OpenClaw Skill** | `clawhub install runbox` — instant agent integration |
 | **Docker Isolation** | No network, memory/CPU limits, 60s timeout per execution |
@@ -44,7 +44,7 @@ Built for the **Stellar Hacks: Agents** hackathon. Purpose-built for [OpenClaw](
 ### Option 1: npm Client SDK
 
 ```typescript
-import { RunBox } from "@runbox/client";
+import { RunBox } from "runbox-client";
 
 const box = new RunBox();
 
@@ -76,7 +76,7 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "runbox": {
       "command": "npx",
-      "args": ["@runbox/mcp"],
+      "args": ["runbox-mcp"],
       "env": {
         "RUNBOX_SESSION_TOKEN": "<your_session_token>"
       }
@@ -250,8 +250,8 @@ All run in isolated Docker containers with no network access.
 
 ```
 packages/
-  runbox-client/          @runbox/client npm SDK
-  runbox-mcp/             @runbox/mcp MCP server for Claude/Cursor
+  runbox-client/          runbox-client npm SDK
+  runbox-mcp/             runbox-mcp MCP server for Claude/Cursor
 
 contracts/
   spending-cap/           Soroban spending-cap smart contract (Rust)
