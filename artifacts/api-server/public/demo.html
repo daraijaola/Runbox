@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RunBox Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+    background: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+    position: relative;
+    user-select: none;
+  }
+
+  /* ── macOS Wallpaper ── */
+  .wallpaper {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, #0f3460 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, #533483 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, #0d1b2a 0%, transparent 60%),
+      linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0d1b2a 100%);
+  }
+
+  /* ── macOS Menu Bar ── */
+  .menubar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 24px;
+    background: rgba(28, 28, 30, 0.85);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .menubar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .apple-logo {
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .menu-item {
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    letter-spacing: -0.1px;
+  }
+
+  .menu-item.bold {
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .menubar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .menubar-right span {
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* ── Mac Window Base ── */
+  .mac-window {
+    position: absolute;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 0.5px rgba(0,0,0,0.6),
+      0 25px 60px rgba(0,0,0,0.7),
+      0 10px 20px rgba(0,0,0,0.4);
+  }
+
+  .window-titlebar {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 8px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .traffic-lights {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .dot.red   { background: #FF5F57; box-shadow: 0 0 0 0.5px rgba(255,0,0,0.3); }
+  .dot.yellow{ background: #FEBC2E; box-shadow: 0 0 0 0.5px rgba(255,180,0,0.3); }
+  .dot.green { background: #28C840; box-shadow: 0 0 0 0.5px rgba(0,200,0,0.3); }
+
+  .window-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: -0.1px;
+  }
+
+  /* ── Telegram Window ── */
+  .telegram-window {
+    top: 42px;
+    left: 28px;
+    width: 420px;
+    height: 640px;
+  }
+
+  .telegram-titlebar {
+    background: #1e1e1e;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .telegram-body {
+    display: flex;
+    height: calc(100% - 38px);
+    background: #212121;
+  }
+
+  .tg-sidebar {
+    width: 72px;
+    background: #1a1a1a;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    gap: 12px;
+  }
+
+  .tg-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .tg-icon.active {
+    background: #2AABEE;
+  }
+
+  .tg-icon.inactive {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.4);
+  }
+
+  .tg-chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tg-chat-header {
+    height: 52px;
+    background: #212121;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 10px;
+  }
+
+  .tg-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7B61FF, #4FACFE);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: white;
+    font-weight: 600;
+  }
+
+  .tg-contact-info {
+    flex: 1;
+  }
+
+  .tg-contact-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.1px;
+  }
+
+  .tg-contact-status {
+    font-size: 11px;
+    color: #2AABEE;
+  }
+
+  .tg-messages {
+    flex: 1;
+    overflow: hidden;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #212121;
+  }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 78%;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(6px);
+  }
+
+  .msg.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .msg.user {
+    align-self: flex-end;
+  }
+
+  .msg.bot {
+    align-self: flex-start;
+  }
+
+  .msg-bubble {
+    padding: 8px 12px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.45;
+    letter-spacing: -0.1px;
+    position: relative;
+  }
+
+  .msg.user .msg-bubble {
+    background: #2AABEE;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg.bot .msg-bubble {
+    background: #2E2E2E;
+    color: #F5F5F7;
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg-time {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 3px;
+    align-self: flex-end;
+  }
+
+  .msg.bot .msg-time {
+    align-self: flex-start;
+  }
+
+  .tool-use {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    border-left: 2px solid #7B61FF;
+    margin-bottom: 4px;
+    font-family: "SF Mono", "Monaco", monospace;
+  }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    background: #2E2E2E;
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    width: 50px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .typing-indicator.visible {
+    opacity: 1;
+  }
+
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    animation: typingPulse 1.2s ease-in-out infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingPulse {
+    0%, 60%, 100% { transform: scale(1); opacity: 0.4; }
+    30% { transform: scale(1.3); opacity: 1; }
+  }
+
+  .tg-input-area {
+    height: 50px;
+    background: #1e1e1e;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .tg-input {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    outline: none;
+    font-family: inherit;
+  }
+
+  .tg-send {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2AABEE;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+  }
+
+  /* ── Terminal Window ── */
+  .terminal-window {
+    top: 42px;
+    left: 468px;
+    width: 784px;
+    height: 640px;
+  }
+
+  .terminal-titlebar {
+    background: #2D2D2D;
+    border-bottom: 1px solid rgba(0,0,0,0.4);
+  }
+
+  .terminal-body {
+    background: #1A1A1A;
+    height: calc(100% - 38px);
+    padding: 14px 18px;
+    font-family: "SF Mono", "Monaco", "Menlo", "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .term-line {
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    white-space: pre;
+    min-height: 1.6em;
+  }
+
+  .term-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .term-line .prompt { color: #30D158; }
+  .term-line .cmd    { color: #F5F5F7; }
+  .term-line .dim    { color: rgba(255,255,255,0.35); }
+  .term-line .green  { color: #30D158; }
+  .term-line .yellow { color: #FFD60A; }
+  .term-line .blue   { color: #0A84FF; }
+  .term-line .purple { color: #BF5AF2; }
+  .term-line .red    { color: #FF453A; }
+  .term-line .cyan   { color: #5AC8FA; }
+  .term-line .orange { color: #FF9F0A; }
+  .term-line .white  { color: #F5F5F7; }
+  .term-line .bold   { font-weight: 700; }
+  .term-line .muted  { color: rgba(255,255,255,0.5); }
+
+  /* ── Stellar Explorer Popup ── */
+  .explorer-popup {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(28,28,30,0.95);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 16px 20px;
+    width: 620px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 200;
+  }
+
+  .explorer-popup.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .explorer-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .explorer-logo {
+    font-size: 18px;
+  }
+
+  .explorer-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .explorer-subtitle {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .explorer-badge {
+    margin-left: auto;
+    background: #30D158;
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .explorer-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .explorer-field {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  .explorer-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+    font-family: "SF Mono", monospace;
+  }
+
+  .explorer-value {
+    font-size: 11px;
+    color: #F5F5F7;
+    font-family: "SF Mono", monospace;
+    word-break: break-all;
+  }
+
+  .explorer-value.green { color: #30D158; font-weight: 600; }
+  .explorer-value.blue  { color: #0A84FF; }
+
+  .explorer-tx {
+    grid-column: 1 / -1;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  /* ── Cursor Blink ── */
+  .cursor {
+    display: inline-block;
+    width: 7px;
+    height: 13px;
+    background: #30D158;
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* ── Boot overlay ── */
+  .boot {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s ease;
+  }
+
+  .boot.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .boot-text {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 1px;
+  }
+
+  /* ── Title card ── */
+  .title-card {
+    position: absolute;
+    top: 32px;
+    right: 28px;
+    background: rgba(28,28,30,0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 10px 16px;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .title-card.visible {
+    opacity: 1;
+  }
+
+  .title-card-main {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+
+  .title-card-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+
+  .tag {
+    display: inline-block;
+    background: rgba(43,171,238,0.2);
+    color: #2AABEE;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-right: 4px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .tag.stellar {
+    background: rgba(48,209,88,0.15);
+    color: #30D158;
+  }
+</style>
+</head>
+<body>
+
+<!-- Boot -->
+<div class="boot" id="boot">
+  <span class="boot-text">RunBox</span>
+</div>
+
+<!-- Wallpaper -->
+<div class="wallpaper"></div>
+
+<!-- Menu Bar -->
+<div class="menubar">
+  <div class="menubar-left">
+    <span class="apple-logo">&#63743;</span>
+    <span class="menu-item bold">Telegram</span>
+    <span class="menu-item">File</span>
+    <span class="menu-item">Edit</span>
+    <span class="menu-item">View</span>
+    <span class="menu-item">Window</span>
+  </div>
+  <div class="menubar-right">
+    <span>🔋 100%</span>
+    <span>Mon Apr 7</span>
+    <span id="clock">4:20 PM</span>
+  </div>
+</div>
+
+<!-- Title Card -->
+<div class="title-card" id="titleCard">
+  <div class="title-card-main">RunBox &mdash; AI Agent Demo</div>
+  <div class="title-card-sub" style="margin-top:4px">
+    <span class="tag">x402</span>
+    <span class="tag stellar">Stellar USDC</span>
+    <span class="tag" style="background:rgba(191,90,242,0.15);color:#BF5AF2">OpenClaw</span>
+  </div>
+  <div class="title-card-sub">Pay-per-use code execution &bull; No API key needed</div>
+</div>
+
+<!-- Telegram Window -->
+<div class="mac-window telegram-window">
+  <div class="window-titlebar telegram-titlebar">
+    <div class="traffic-lights">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+    </div>
+    <div class="window-title">Telegram</div>
+  </div>
+  <div class="telegram-body">
+    <div class="tg-sidebar">
+      <div class="tg-icon active">💬</div>
+      <div class="tg-icon inactive">👥</div>
+      <div class="tg-icon inactive">📞</div>
+      <div class="tg-icon inactive">⚙️</div>
+    </div>
+    <div class="tg-chat-area">
+      <div class="tg-chat-header">
+        <div class="tg-avatar">🤖</div>
+        <div class="tg-contact-info">
+          <div class="tg-contact-name">My AI Agent</div>
+          <div class="tg-contact-status" id="agentStatus">online</div>
+        </div>
+      </div>
+      <div class="tg-messages" id="messages">
+        <!-- Messages injected by JS -->
+      </div>
+      <div class="tg-input-area">
+        <input class="tg-input" placeholder="Message" readonly id="tgInput">
+        <button class="tg-send">&#9658;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Terminal Window -->
+<div class="mac-window terminal-window">
+  <div class="window-titlebar terminal-titlebar">
+    <div class="traffic-lights">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+    </div>
+    <div class="window-title">zsh &mdash; openclaw gateway log</div>
+  </div>
+  <div class="terminal-body" id="termBody">
+    <!-- Lines injected by JS -->
+    <span class="cursor" id="cursor"></span>
+  </div>
+</div>
+
+<!-- Stellar Explorer Popup -->
+<div class="explorer-popup" id="explorerPopup">
+  <div class="explorer-header">
+    <span class="explorer-logo">🌟</span>
+    <div>
+      <div class="explorer-title">stellar.expert — Transaction Confirmed</div>
+      <div class="explorer-subtitle">Stellar Testnet &bull; Real on-chain payment</div>
+    </div>
+    <div class="explorer-badge">✓ Confirmed</div>
+  </div>
+  <div class="explorer-body">
+    <div class="explorer-field">
+      <div class="explorer-label">Amount</div>
+      <div class="explorer-value green">0.01 USDC</div>
+    </div>
+    <div class="explorer-field">
+      <div class="explorer-label">Network</div>
+      <div class="explorer-value">Stellar Testnet</div>
+    </div>
+    <div class="explorer-field">
+      <div class="explorer-label">Status</div>
+      <div class="explorer-value green">&#10003; Success</div>
+    </div>
+    <div class="explorer-field">
+      <div class="explorer-label">From (Agent Wallet)</div>
+      <div class="explorer-value muted" style="font-size:10px">GBG6JRWK24KPGCD57CAB…</div>
+    </div>
+    <div class="explorer-field">
+      <div class="explorer-label">To (RunBox Wallet)</div>
+      <div class="explorer-value muted" style="font-size:10px">GBYJL74NSTVBUMTACWNE…</div>
+    </div>
+    <div class="explorer-field">
+      <div class="explorer-label">Fee</div>
+      <div class="explorer-value">0.00001 XLM</div>
+    </div>
+    <div class="explorer-tx">
+      <div class="explorer-label">Transaction Hash</div>
+      <div class="explorer-value blue" style="font-size:10.5px">0ddd3ea09a1c8cc3b93fb91c4298a4ec156b8a907abd475a664e3fd91019d70d</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Clock ──────────────────────────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    const h = now.getHours() % 12 || 12;
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+    document.getElementById('clock').textContent = `${h}:${m} ${ampm}`;
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function addTermLine(html, className = '') {
+    const termBody = document.getElementById('termBody');
+    const cursor = document.getElementById('cursor');
+    const div = document.createElement('div');
+    div.className = 'term-line ' + className;
+    div.innerHTML = html;
+    termBody.insertBefore(div, cursor);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { div.classList.add('visible'); });
+    });
+    return div;
+  }
+
+  function addMessage(type, html, toolUseText = null) {
+    const msgs = document.getElementById('messages');
+    const wrapper = document.createElement('div');
+    wrapper.className = `msg ${type}`;
+
+    if (toolUseText) {
+      const toolDiv = document.createElement('div');
+      toolDiv.className = 'tool-use';
+      toolDiv.textContent = '🔧 ' + toolUseText;
+      wrapper.appendChild(toolDiv);
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = html;
+    wrapper.appendChild(bubble);
+
+    const now = new Date();
+    const h = now.getHours() % 12 || 12;
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = `${h}:${m} ${ampm}`;
+    wrapper.appendChild(time);
+
+    msgs.appendChild(wrapper);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { wrapper.classList.add('visible'); });
+    });
+    msgs.scrollTop = msgs.scrollHeight;
+    return wrapper;
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('messages');
+    const ind = document.createElement('div');
+    ind.style.alignSelf = 'flex-start';
+    const inner = document.createElement('div');
+    inner.className = 'typing-indicator';
+    inner.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    ind.appendChild(inner);
+    msgs.appendChild(ind);
+    msgs.scrollTop = msgs.scrollHeight;
+    requestAnimationFrame(() => requestAnimationFrame(() => inner.classList.add('visible')));
+    return ind;
+  }
+
+  function typeInput(text) {
+    const input = document.getElementById('tgInput');
+    let i = 0;
+    return new Promise(resolve => {
+      function type() {
+        if (i <= text.length) {
+          input.value = text.substring(0, i);
+          i++;
+          setTimeout(type, 38 + Math.random() * 25);
+        } else {
+          resolve();
+        }
+      }
+      type();
+    });
+  }
+
+  // ── Main animation ─────────────────────────────────────────────────────────
+  async function runDemo() {
+    // Boot
+    await delay(800);
+    document.getElementById('boot').classList.add('hidden');
+    document.getElementById('titleCard').classList.add('visible');
+
+    await delay(1200);
+
+    // Initial terminal prompt
+    addTermLine('<span class="prompt">➜</span> <span class="dim">~</span> <span class="cmd">openclaw gateway</span>');
+    await delay(400);
+    addTermLine('<span class="muted">OpenClaw 2026.4.5 — Gateway started on :19001</span>');
+    await delay(300);
+    addTermLine('<span class="muted">Telegram channel connected · RunBox skill loaded · model: claude-opus-4-5</span>');
+    await delay(300);
+    addTermLine('');
+    await delay(600);
+
+    // User types in Telegram
+    await typeInput('Can you calculate the 100th Fibonacci number by running Python code?');
+    await delay(300);
+    document.getElementById('tgInput').value = '';
+
+    // User message appears
+    addMessage('user', 'Can you calculate the 100th Fibonacci number by running Python code?');
+    await delay(600);
+
+    // Agent typing
+    document.getElementById('agentStatus').textContent = 'typing…';
+    const typing = showTyping();
+    await delay(1800);
+    typing.remove();
+
+    // Terminal: agent decides to use RunBox
+    addTermLine('<span class="dim">[16:20:33]</span> <span class="purple">[agent]</span> <span class="white">User requests code execution → invoking RunBox skill</span>');
+    await delay(400);
+    addTermLine('<span class="dim">[16:20:33]</span> <span class="cyan">[runbox]</span> <span class="white">POST</span> <span class="blue">http://46.101.74.170:4001/api/exec/rent</span>');
+    await delay(700);
+
+    // 402 response
+    addTermLine('<span class="dim">[16:20:33]</span> <span class="cyan">[runbox]</span> <span class="yellow">← 402 Payment Required</span>');
+    await delay(200);
+    addTermLine('<span class="dim">           </span> <span class="muted">payTo: GBYJL74NSTVBUMTACWNE2ETTW7XRNF7ZWEQLQKKZHJZ6UIG2ALXPB5QW</span>');
+    await delay(150);
+    addTermLine('<span class="dim">           </span> <span class="muted">amount: 0.01 USDC · network: stellar:testnet</span>');
+    await delay(500);
+
+    // Payment
+    addTermLine('<span class="dim">[16:20:33]</span> <span class="orange">[stellar]</span> <span class="white">Signing USDC payment from GBG6JRWK24KPGCD57CAB…</span>');
+    await delay(600);
+    addTermLine('<span class="dim">[16:20:34]</span> <span class="orange">[stellar]</span> <span class="white">Submitting to Stellar network…</span>');
+    await delay(1200);
+    addTermLine('<span class="dim">[16:20:36]</span> <span class="orange">[stellar]</span> <span class="green">✓ Transaction confirmed!</span>');
+    await delay(200);
+    addTermLine('<span class="dim">           </span> <span class="muted">hash: a50f0f6a408d42b57e951c7b53194a09…</span>');
+    await delay(500);
+
+    // Claim session
+    addTermLine('<span class="dim">[16:20:36]</span> <span class="cyan">[runbox]</span> <span class="white">POST /api/exec/rent  X-Payment-Hash: a50f0f6a…</span>');
+    await delay(500);
+    addTermLine('<span class="dim">[16:20:36]</span> <span class="cyan">[runbox]</span> <span class="green">← 200 Session granted!</span>');
+    await delay(200);
+    addTermLine('<span class="dim">           </span> <span class="muted">session_id: d655bbd1-33c2-4ecd-b508-b2073be96fe2</span>');
+    await delay(200);
+    addTermLine('<span class="dim">           </span> <span class="muted">expires_at: 2026-04-07T16:25:36Z  (5 min)</span>');
+    await delay(600);
+
+    // Execute code
+    addTermLine('<span class="dim">[16:20:36]</span> <span class="cyan">[runbox]</span> <span class="white">POST /api/exec/run · language: python · 3 lines</span>');
+    await delay(300);
+    addTermLine('<span class="dim">[16:20:37]</span> <span class="purple">[docker]</span> <span class="white">Spawning python:3.11-slim container…</span>');
+    await delay(1500);
+    addTermLine('<span class="dim">[16:20:38]</span> <span class="cyan">[runbox]</span> <span class="green">✓ Execution complete · 892ms · exit 0</span>');
+    await delay(300);
+    addTermLine('<span class="dim">           </span> <span class="green bold">F(100) = 354224848179261915075</span>');
+    await delay(400);
+    addTermLine('');
+
+    // Bot replies in Telegram
+    document.getElementById('agentStatus').textContent = 'online';
+
+    const botMsg = addMessage('bot',
+      `The 100th Fibonacci number is:<br><br>` +
+      `<strong style="font-family:monospace;font-size:14px;color:#30D158">354,224,848,179,261,915,075</strong><br><br>` +
+      `Ran in Python via RunBox sandbox (892ms). Paid <strong>0.01 USDC</strong> on Stellar automatically. ✓`,
+      'runbox: executed python code'
+    );
+    await delay(300);
+
+    // Show Stellar explorer
+    addTermLine('<span class="dim">[16:20:38]</span> <span class="muted">Explorer: https://stellar.expert/explorer/testnet/tx/a50f0f6a…</span>');
+    await delay(800);
+
+    document.getElementById('explorerPopup').classList.add('visible');
+
+    // Loop: restart after 8s pause
+    await delay(8000);
+    document.getElementById('explorerPopup').classList.remove('visible');
+    await delay(600);
+
+    // Fade out and restart
+    document.body.style.transition = 'opacity 0.8s ease';
+    document.body.style.opacity = '0';
+    await delay(900);
+
+    // Clear and restart
+    document.getElementById('termBody').innerHTML = '<span class="cursor" id="cursor"></span>';
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('tgInput').value = '';
+    document.getElementById('agentStatus').textContent = 'online';
+    document.getElementById('titleCard').classList.remove('visible');
+    document.getElementById('boot').classList.remove('hidden');
+    document.getElementById('boot').style.opacity = '1';
+    document.body.style.opacity = '1';
+    document.getElementById('boot').style.transition = 'opacity 0.8s ease';
+
+    await delay(1200);
+    document.getElementById('boot').classList.add('hidden');
+    document.getElementById('titleCard').classList.add('visible');
+    await delay(600);
+    runDemo();
+  }
+
+  runDemo();
+</script>
+</body>
+</html>
