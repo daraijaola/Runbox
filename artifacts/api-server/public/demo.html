@@ -3,953 +3,866 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RunBox Demo</title>
+<title>RunBox — AI Code Execution Playground</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #08090d;
+    --bg-secondary: #0f1117;
+    --bg-card: rgba(17, 19, 27, 0.85);
+    --bg-input: #0c0d12;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(255, 255, 255, 0.12);
+    --text-primary: #e8eaed;
+    --text-secondary: #8b8fa3;
+    --text-dim: #555872;
+    --accent: #6366f1;
+    --accent-hover: #818cf8;
+    --accent-glow: rgba(99, 102, 241, 0.15);
+    --green: #34d399;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --orange: #fb923c;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
 
   body {
-    width: 1280px;
-    height: 720px;
-    overflow: hidden;
-    background: #1a1a2e;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
-    position: relative;
-    user-select: none;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ── macOS Wallpaper ── */
-  .wallpaper {
-    position: absolute;
+  body::before {
+    content: '';
+    position: fixed;
     inset: 0;
     background:
-      radial-gradient(ellipse at 20% 50%, #0f3460 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, #533483 0%, transparent 50%),
-      radial-gradient(ellipse at 60% 80%, #0d1b2a 0%, transparent 60%),
-      linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0d1b2a 100%);
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 50%, rgba(139, 92, 246, 0.04), transparent);
+    pointer-events: none;
+    z-index: 0;
   }
 
-  /* ── macOS Menu Bar ── */
-  .menubar {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 24px;
-    background: rgba(28, 28, 30, 0.85);
-    backdrop-filter: blur(20px);
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    padding: 28px 0 20px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    z-index: 100;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    justify-content: space-between;
   }
 
-  .menubar-left {
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -1px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-glow);
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  .header-links {
     display: flex;
     align-items: center;
     gap: 16px;
   }
 
-  .apple-logo {
+  .header-links a {
     font-size: 13px;
-    color: rgba(255,255,255,0.9);
-  }
-
-  .menu-item {
-    font-size: 12px;
-    color: rgba(255,255,255,0.85);
     font-weight: 500;
-    letter-spacing: -0.1px;
-  }
-
-  .menu-item.bold {
-    font-weight: 600;
-    color: #fff;
-  }
-
-  .menubar-right {
-    margin-left: auto;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
     display: flex;
     align-items: center;
-    gap: 14px;
-  }
-
-  .menubar-right span {
-    font-size: 12px;
-    color: rgba(255,255,255,0.8);
-  }
-
-  /* ── Mac Window Base ── */
-  .mac-window {
-    position: absolute;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow:
-      0 0 0 0.5px rgba(0,0,0,0.6),
-      0 25px 60px rgba(0,0,0,0.7),
-      0 10px 20px rgba(0,0,0,0.4);
-  }
-
-  .window-titlebar {
-    height: 38px;
-    display: flex;
-    align-items: center;
-    padding: 0 14px;
-    gap: 8px;
-    position: relative;
-    flex-shrink: 0;
-  }
-
-  .traffic-lights {
-    display: flex;
     gap: 6px;
-    align-items: center;
   }
 
-  .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    position: relative;
+  .header-links a:hover { color: var(--text-primary); }
+  .header-links a svg { width: 16px; height: 16px; }
+
+  .hero {
+    text-align: center;
+    padding: 12px 0 28px;
   }
 
-  .dot.red   { background: #FF5F57; box-shadow: 0 0 0 0.5px rgba(255,0,0,0.3); }
-  .dot.yellow{ background: #FEBC2E; box-shadow: 0 0 0 0.5px rgba(255,180,0,0.3); }
-  .dot.green { background: #28C840; box-shadow: 0 0 0 0.5px rgba(0,200,0,0.3); }
-
-  .window-title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.7);
-    letter-spacing: -0.1px;
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
   }
 
-  /* ── Telegram Window ── */
-  .telegram-window {
-    top: 42px;
-    left: 28px;
-    width: 420px;
-    height: 640px;
+  .hero p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.5;
   }
 
-  .telegram-titlebar {
-    background: #1e1e1e;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .telegram-body {
+  .tabs {
     display: flex;
-    height: calc(100% - 38px);
-    background: #212121;
+    gap: 2px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin: 0 auto 24px;
+    max-width: 320px;
+    border: 1px solid var(--border);
   }
 
-  .tg-sidebar {
-    width: 72px;
-    background: #1a1a1a;
-    border-right: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 12px;
-    gap: 12px;
-  }
-
-  .tg-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .tg-icon.active {
-    background: #2AABEE;
-  }
-
-  .tg-icon.inactive {
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.4);
-  }
-
-  .tg-chat-area {
+  .tab {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .tg-chat-header {
-    height: 52px;
-    background: #212121;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    align-items: center;
-    padding: 0 14px;
-    gap: 10px;
-  }
-
-  .tg-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #7B61FF, #4FACFE);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    color: white;
-    font-weight: 600;
-  }
-
-  .tg-contact-info {
-    flex: 1;
-  }
-
-  .tg-contact-name {
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
     font-size: 13px;
     font-weight: 600;
-    color: #fff;
-    letter-spacing: -0.1px;
-  }
-
-  .tg-contact-status {
-    font-size: 11px;
-    color: #2AABEE;
-  }
-
-  .tg-messages {
-    flex: 1;
-    overflow: hidden;
-    padding: 14px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background: #212121;
-  }
-
-  .msg {
-    display: flex;
-    flex-direction: column;
-    max-width: 78%;
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateY(6px);
-  }
-
-  .msg.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .msg.user {
-    align-self: flex-end;
-  }
-
-  .msg.bot {
-    align-self: flex-start;
-  }
-
-  .msg-bubble {
-    padding: 8px 12px;
-    border-radius: 14px;
-    font-size: 13px;
-    line-height: 1.45;
-    letter-spacing: -0.1px;
-    position: relative;
-  }
-
-  .msg.user .msg-bubble {
-    background: #2AABEE;
-    color: #fff;
-    border-bottom-right-radius: 4px;
-  }
-
-  .msg.bot .msg-bubble {
-    background: #2E2E2E;
-    color: #F5F5F7;
-    border-bottom-left-radius: 4px;
-  }
-
-  .msg-time {
-    font-size: 10px;
-    color: rgba(255,255,255,0.3);
-    margin-top: 3px;
-    align-self: flex-end;
-  }
-
-  .msg.bot .msg-time {
-    align-self: flex-start;
-  }
-
-  .tool-use {
-    font-size: 11px;
-    color: rgba(255,255,255,0.4);
-    padding: 4px 10px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 8px;
-    border-left: 2px solid #7B61FF;
-    margin-bottom: 4px;
-    font-family: "SF Mono", "Monaco", monospace;
-  }
-
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 12px;
-    background: #2E2E2E;
-    border-radius: 14px;
-    border-bottom-left-radius: 4px;
-    width: 50px;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .typing-indicator.visible {
-    opacity: 1;
-  }
-
-  .typing-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.4);
-    animation: typingPulse 1.2s ease-in-out infinite;
-  }
-
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes typingPulse {
-    0%, 60%, 100% { transform: scale(1); opacity: 0.4; }
-    30% { transform: scale(1.3); opacity: 1; }
-  }
-
-  .tg-input-area {
-    height: 50px;
-    background: #1e1e1e;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    gap: 8px;
-  }
-
-  .tg-input {
-    flex: 1;
-    background: rgba(255,255,255,0.08);
+    color: var(--text-secondary);
+    background: transparent;
     border: none;
-    border-radius: 20px;
-    padding: 8px 14px;
-    font-size: 12px;
-    color: rgba(255,255,255,0.8);
-    outline: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
     font-family: inherit;
   }
 
-  .tg-send {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #2AABEE;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+  .tab.active {
+    background: var(--accent);
     color: white;
-    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
   }
 
-  /* ── Terminal Window ── */
-  .terminal-window {
-    top: 42px;
-    left: 468px;
-    width: 784px;
-    height: 640px;
+  .tab:not(.active):hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
   }
 
-  .terminal-titlebar {
-    background: #2D2D2D;
-    border-bottom: 1px solid rgba(0,0,0,0.4);
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .playground {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
   }
 
-  .terminal-body {
-    background: #1A1A1A;
-    height: calc(100% - 38px);
-    padding: 14px 18px;
-    font-family: "SF Mono", "Monaco", "Menlo", "Courier New", monospace;
-    font-size: 12.5px;
-    line-height: 1.6;
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(20px);
     overflow: hidden;
-    position: relative;
   }
 
-  .term-line {
-    opacity: 0;
-    transform: translateY(2px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    white-space: pre;
-    min-height: 1.6em;
-  }
-
-  .term-line.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .term-line .prompt { color: #30D158; }
-  .term-line .cmd    { color: #F5F5F7; }
-  .term-line .dim    { color: rgba(255,255,255,0.35); }
-  .term-line .green  { color: #30D158; }
-  .term-line .yellow { color: #FFD60A; }
-  .term-line .blue   { color: #0A84FF; }
-  .term-line .purple { color: #BF5AF2; }
-  .term-line .red    { color: #FF453A; }
-  .term-line .cyan   { color: #5AC8FA; }
-  .term-line .orange { color: #FF9F0A; }
-  .term-line .white  { color: #F5F5F7; }
-  .term-line .bold   { font-weight: 700; }
-  .term-line .muted  { color: rgba(255,255,255,0.5); }
-
-  /* ── Stellar Explorer Popup ── */
-  .explorer-popup {
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: rgba(28,28,30,0.95);
-    backdrop-filter: blur(30px);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 14px;
-    padding: 16px 20px;
-    width: 620px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-    opacity: 0;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    z-index: 200;
-  }
-
-  .explorer-popup.visible {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  .explorer-header {
+  .card-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
   }
 
-  .explorer-logo {
-    font-size: 18px;
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
   }
 
-  .explorer-title {
+  .lang-select {
+    appearance: none;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 28px 6px 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%238b8fa3' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+
+  .lang-select:hover { border-color: var(--border-hover); }
+  .lang-select:focus { outline: none; border-color: var(--accent); }
+
+  .code-editor {
+    width: 100%;
+    min-height: 320px;
+    max-height: 320px;
+    padding: 16px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    resize: none;
+    tab-size: 2;
+  }
+
+  .code-editor:focus { outline: none; }
+  .code-editor::placeholder { color: var(--text-dim); }
+
+  .run-bar {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .run-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 600;
-    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
   }
 
-  .explorer-subtitle {
-    font-size: 11px;
-    color: rgba(255,255,255,0.4);
+  .run-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .run-btn:active { transform: translateY(0); }
+  .run-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .run-btn svg { width: 14px; height: 14px; }
+
+  .run-meta {
+    font-size: 12px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
-  .explorer-badge {
-    margin-left: auto;
-    background: #30D158;
-    color: #000;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-  }
+  .run-meta .time { color: var(--green); font-weight: 500; }
+  .run-meta .exit-ok { color: var(--green); }
+  .run-meta .exit-err { color: var(--red); }
 
-  .explorer-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-  }
-
-  .explorer-field {
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
-    padding: 8px 10px;
-  }
-
-  .explorer-label {
-    font-size: 10px;
-    color: rgba(255,255,255,0.35);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 3px;
-    font-family: "SF Mono", monospace;
-  }
-
-  .explorer-value {
-    font-size: 11px;
-    color: #F5F5F7;
-    font-family: "SF Mono", monospace;
+  .output-area {
+    width: 100%;
+    min-height: 320px;
+    max-height: 320px;
+    padding: 16px;
+    background: transparent;
+    color: var(--green);
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-y: auto;
+    white-space: pre-wrap;
     word-break: break-all;
   }
 
-  .explorer-value.green { color: #30D158; font-weight: 600; }
-  .explorer-value.blue  { color: #0A84FF; }
+  .output-area .stderr { color: var(--red); }
+  .output-area .placeholder { color: var(--text-dim); font-style: italic; }
 
-  .explorer-tx {
-    grid-column: 1 / -1;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
-    padding: 8px 10px;
+  .ai-panel { margin-bottom: 24px; }
+
+  .ai-input-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
   }
 
-  /* ── Cursor Blink ── */
-  .cursor {
-    display: inline-block;
-    width: 7px;
-    height: 13px;
-    background: #30D158;
-    vertical-align: middle;
-    margin-left: 2px;
-    animation: blink 1s step-end infinite;
+  .ai-input {
+    flex: 1;
+    padding: 14px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    backdrop-filter: blur(20px);
   }
 
-  @keyframes blink {
-    50% { opacity: 0; }
+  .ai-input:focus { outline: none; border-color: var(--accent); }
+  .ai-input::placeholder { color: var(--text-dim); }
+
+  .ai-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
   }
 
-  /* ── Boot overlay ── */
-  .boot {
-    position: absolute;
-    inset: 0;
-    background: #000;
-    z-index: 999;
+  .ai-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3); }
+  .ai-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .ai-result { display: none; }
+
+  .ai-result.visible {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .ai-result .card { min-height: 0; }
+
+  .ai-code-display {
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    overflow-y: auto;
+    max-height: 280px;
+  }
+
+  .ai-output-display {
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--green);
+    white-space: pre-wrap;
+    overflow-y: auto;
+    max-height: 280px;
+  }
+
+  .ai-output-display .stderr { color: var(--red); }
+
+  .ai-thinking { display: none; text-align: center; padding: 48px 0; }
+  .ai-thinking.visible { display: block; }
+
+  .ai-thinking .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .ai-thinking p { color: var(--text-secondary); font-size: 14px; }
+
+  .ai-suggestions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .ai-suggestion {
+    padding: 8px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(20px);
+  }
+
+  .ai-suggestion:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  .ai-meta {
+    margin-top: 0;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .ai-meta span { font-size: 12px; color: var(--text-dim); }
+
+  .lang-tag {
+    background: var(--accent-glow);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  footer {
+    padding: 32px 0;
+    text-align: center;
+  }
+
+  .tech-badges {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.8s ease;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
   }
 
-  .boot.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .boot-text {
-    font-size: 14px;
-    color: rgba(255,255,255,0.6);
-    letter-spacing: 1px;
-  }
-
-  /* ── Title card ── */
-  .title-card {
-    position: absolute;
-    top: 32px;
-    right: 28px;
-    background: rgba(28,28,30,0.7);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 10px 16px;
-    z-index: 50;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-  }
-
-  .title-card.visible {
-    opacity: 1;
-  }
-
-  .title-card-main {
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.3px;
-  }
-
-  .title-card-sub {
+  .badge {
+    padding: 5px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
     font-size: 11px;
-    color: rgba(255,255,255,0.4);
-    margin-top: 2px;
-  }
-
-  .tag {
-    display: inline-block;
-    background: rgba(43,171,238,0.2);
-    color: #2AABEE;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 4px;
-    margin-right: 4px;
+    font-weight: 500;
+    color: var(--text-secondary);
     letter-spacing: 0.3px;
-    text-transform: uppercase;
+    backdrop-filter: blur(20px);
   }
 
-  .tag.stellar {
-    background: rgba(48,209,88,0.15);
-    color: #30D158;
+  .footer-text {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .footer-text a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-text a:hover { color: var(--accent); }
+
+  .char-count { font-size: 11px; color: var(--text-dim); margin-left: auto; }
+  .char-count.warn { color: var(--orange); }
+  .char-count.limit { color: var(--red); }
+
+  .kbd {
+    font-size: 10px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+
+  .spinner-sm {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
   }
 </style>
 </head>
 <body>
 
-<!-- Boot -->
-<div class="boot" id="boot">
-  <span class="boot-text">RunBox</span>
-</div>
-
-<!-- Wallpaper -->
-<div class="wallpaper"></div>
-
-<!-- Menu Bar -->
-<div class="menubar">
-  <div class="menubar-left">
-    <span class="apple-logo">&#63743;</span>
-    <span class="menu-item bold">Telegram</span>
-    <span class="menu-item">File</span>
-    <span class="menu-item">Edit</span>
-    <span class="menu-item">View</span>
-    <span class="menu-item">Window</span>
-  </div>
-  <div class="menubar-right">
-    <span>🔋 100%</span>
-    <span>Mon Apr 7</span>
-    <span id="clock">4:20 PM</span>
-  </div>
-</div>
-
-<!-- Title Card -->
-<div class="title-card" id="titleCard">
-  <div class="title-card-main">RunBox &mdash; AI Agent Demo</div>
-  <div class="title-card-sub" style="margin-top:4px">
-    <span class="tag">x402</span>
-    <span class="tag stellar">Stellar USDC</span>
-    <span class="tag" style="background:rgba(191,90,242,0.15);color:#BF5AF2">OpenClaw</span>
-  </div>
-  <div class="title-card-sub">Pay-per-use code execution &bull; No API key needed</div>
-</div>
-
-<!-- Telegram Window -->
-<div class="mac-window telegram-window">
-  <div class="window-titlebar telegram-titlebar">
-    <div class="traffic-lights">
-      <div class="dot red"></div>
-      <div class="dot yellow"></div>
-      <div class="dot green"></div>
+<div class="container">
+  <header>
+    <a href="/" class="logo">
+      <div class="logo-icon">R</div>
+      <span class="logo-text">RunBox</span>
+      <span class="logo-badge">v1.0</span>
+    </a>
+    <div class="header-links">
+      <a href="https://github.com/daraijaola/Runbox" target="_blank">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+      <a href="https://www.npmjs.com/package/runbox-client" target="_blank">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 0v16h16V0H0zm13 13H8V5h2.5v5.5H13V3H3v10z"/></svg>
+        npm
+      </a>
+      <a href="https://lab.stellar.org/r/testnet/contract/CCXVU6NNDBJ23QSG6OGKUMUEXNLVOSJ4SZOJK3AAL2NTHBCAED66SCG3" target="_blank">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0L1 4v8l7 4 7-4V4L8 0zm5 11l-5 3-5-3V5l5-3 5 3v6z"/></svg>
+        Soroban
+      </a>
     </div>
-    <div class="window-title">Telegram</div>
+  </header>
+
+  <div class="hero">
+    <h1>Try RunBox</h1>
+    <p>Execute code in isolated Docker containers. Powered by x402 micropayments on Stellar.</p>
   </div>
-  <div class="telegram-body">
-    <div class="tg-sidebar">
-      <div class="tg-icon active">💬</div>
-      <div class="tg-icon inactive">👥</div>
-      <div class="tg-icon inactive">📞</div>
-      <div class="tg-icon inactive">⚙️</div>
-    </div>
-    <div class="tg-chat-area">
-      <div class="tg-chat-header">
-        <div class="tg-avatar">🤖</div>
-        <div class="tg-contact-info">
-          <div class="tg-contact-name">My AI Agent</div>
-          <div class="tg-contact-status" id="agentStatus">online</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="playground">Playground</button>
+    <button class="tab" data-tab="ai">AI Agent</button>
+  </div>
+
+  <div class="panel active" id="panel-playground">
+    <div class="playground">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Code</span>
+          <select class="lang-select" id="langSelect">
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="bash">Bash</option>
+            <option value="go">Go</option>
+            <option value="rust">Rust</option>
+            <option value="ruby">Ruby</option>
+            <option value="c">C</option>
+            <option value="cpp">C++</option>
+            <option value="php">PHP</option>
+            <option value="perl">Perl</option>
+            <option value="lua">Lua</option>
+            <option value="r">R</option>
+          </select>
+        </div>
+        <textarea class="code-editor" id="codeEditor" spellcheck="false" placeholder="Write your code here..."></textarea>
+        <div class="run-bar">
+          <button class="run-btn" id="runBtn" onclick="runCode()">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+            Run
+          </button>
+          <span class="kbd">Ctrl+Enter</span>
+          <div class="run-meta" id="runMeta"></div>
+          <span class="char-count" id="charCount">0 / 1000</span>
         </div>
       </div>
-      <div class="tg-messages" id="messages">
-        <!-- Messages injected by JS -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Output</span>
+        </div>
+        <div class="output-area" id="outputArea">
+          <span class="placeholder">Output will appear here...</span>
+        </div>
       </div>
-      <div class="tg-input-area">
-        <input class="tg-input" placeholder="Message" readonly id="tgInput">
-        <button class="tg-send">&#9658;</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-ai">
+    <div class="ai-panel">
+      <div class="ai-suggestions">
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">What is the 100th prime number?</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Generate a random maze</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Calculate pi to 50 digits</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Sort 10 random numbers with quicksort</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Draw a Sierpinski triangle in ASCII</button>
+      </div>
+      <div class="ai-input-row">
+        <input class="ai-input" id="aiInput" type="text" placeholder="Ask the AI to compute something..." maxlength="500">
+        <button class="ai-btn" id="aiBtn" onclick="runAI()">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.5 7.5h-3v3h-1v-3h-3v-1h3v-3h1v3h3v1z"/></svg>
+          Ask AI
+        </button>
+      </div>
+
+      <div class="ai-thinking" id="aiThinking">
+        <div class="spinner"></div>
+        <p>Claude is writing and executing code...</p>
+      </div>
+
+      <div class="ai-result" id="aiResult">
+        <div class="card fade-in">
+          <div class="card-header">
+            <span class="card-title">Generated Code</span>
+            <span class="card-title lang-tag" id="aiLangTag"></span>
+          </div>
+          <div class="ai-code-display" id="aiCodeDisplay"></div>
+        </div>
+        <div class="card fade-in">
+          <div class="card-header">
+            <span class="card-title">Execution Result</span>
+          </div>
+          <div class="ai-output-display" id="aiOutputDisplay"></div>
+          <div class="run-bar">
+            <div class="ai-meta" id="aiMeta"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Terminal Window -->
-<div class="mac-window terminal-window">
-  <div class="window-titlebar terminal-titlebar">
-    <div class="traffic-lights">
-      <div class="dot red"></div>
-      <div class="dot yellow"></div>
-      <div class="dot green"></div>
+  <footer>
+    <div class="tech-badges">
+      <span class="badge">x402</span>
+      <span class="badge">Stellar</span>
+      <span class="badge">Soroban</span>
+      <span class="badge">Docker</span>
+      <span class="badge">MCP</span>
+      <span class="badge">MPP</span>
+      <span class="badge">Claude Opus</span>
+      <span class="badge">USDC</span>
     </div>
-    <div class="window-title">zsh &mdash; openclaw gateway log</div>
-  </div>
-  <div class="terminal-body" id="termBody">
-    <!-- Lines injected by JS -->
-    <span class="cursor" id="cursor"></span>
-  </div>
-</div>
-
-<!-- Stellar Explorer Popup -->
-<div class="explorer-popup" id="explorerPopup">
-  <div class="explorer-header">
-    <span class="explorer-logo">🌟</span>
-    <div>
-      <div class="explorer-title">stellar.expert — Transaction Confirmed</div>
-      <div class="explorer-subtitle">Stellar Testnet &bull; Real on-chain payment</div>
-    </div>
-    <div class="explorer-badge">✓ Confirmed</div>
-  </div>
-  <div class="explorer-body">
-    <div class="explorer-field">
-      <div class="explorer-label">Amount</div>
-      <div class="explorer-value green">0.01 USDC</div>
-    </div>
-    <div class="explorer-field">
-      <div class="explorer-label">Network</div>
-      <div class="explorer-value">Stellar Testnet</div>
-    </div>
-    <div class="explorer-field">
-      <div class="explorer-label">Status</div>
-      <div class="explorer-value green">&#10003; Success</div>
-    </div>
-    <div class="explorer-field">
-      <div class="explorer-label">From (Agent Wallet)</div>
-      <div class="explorer-value muted" style="font-size:10px">GBG6JRWK24KPGCD57CAB…</div>
-    </div>
-    <div class="explorer-field">
-      <div class="explorer-label">To (RunBox Wallet)</div>
-      <div class="explorer-value muted" style="font-size:10px">GBYJL74NSTVBUMTACWNE…</div>
-    </div>
-    <div class="explorer-field">
-      <div class="explorer-label">Fee</div>
-      <div class="explorer-value">0.00001 XLM</div>
-    </div>
-    <div class="explorer-tx">
-      <div class="explorer-label">Transaction Hash</div>
-      <div class="explorer-value blue" style="font-size:10.5px">0ddd3ea09a1c8cc3b93fb91c4298a4ec156b8a907abd475a664e3fd91019d70d</div>
-    </div>
-  </div>
+    <p class="footer-text">
+      Pay-per-use isolated code execution for AI agents<br>
+      <a href="https://github.com/daraijaola/Runbox">GitHub</a> &middot;
+      <a href="https://www.npmjs.com/package/runbox-client">npm</a> &middot;
+      <a href="https://www.npmjs.com/package/runbox-mcp">MCP</a> &middot;
+      Built for <a href="https://dorahacks.io/hackathon/stellar-agents-x402-stripe-mpp">Stellar Hacks: Agents</a>
+    </p>
+  </footer>
 </div>
 
 <script>
-  // ── Clock ──────────────────────────────────────────────────────────────────
-  function updateClock() {
-    const now = new Date();
-    const h = now.getHours() % 12 || 12;
-    const m = now.getMinutes().toString().padStart(2, '0');
-    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-    document.getElementById('clock').textContent = `${h}:${m} ${ampm}`;
+const examples = {
+  python: 'def fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n\nfor i in [10, 20, 30, 40, 50]:\n    print(f"fib({i}) = {fibonacci(i):,}")',
+
+  javascript: 'function sieve(n) {\n  const primes = new Array(n + 1).fill(true);\n  primes[0] = primes[1] = false;\n  for (let i = 2; i * i <= n; i++)\n    if (primes[i])\n      for (let j = i * i; j <= n; j += i)\n        primes[j] = false;\n  return primes.reduce((a, v, i) => v ? [...a, i] : a, []);\n}\nconst p = sieve(100);\nconsole.log("Primes up to 100:");\nconsole.log(p.join(", "));\nconsole.log("Count:", p.length);',
+
+  bash: 'echo "=== System Info ==="\necho "Date: $(date)"\necho "Shell: $SHELL"\necho "User: $(whoami)"\necho ""\necho "=== Counting to 10 ==="\nfor i in $(seq 1 10); do\n  printf "%2d " $i\n  printf \'%0.s#\' $(seq 1 $i)\n  echo ""\ndone',
+
+  go: 'package main\n\nimport (\n  "fmt"\n  "math"\n)\n\nfunc isPrime(n int) bool {\n  if n < 2 { return false }\n  for i := 2; i <= int(math.Sqrt(float64(n))); i++ {\n    if n%i == 0 { return false }\n  }\n  return true\n}\n\nfunc main() {\n  count := 0\n  for n := 2; count < 20; n++ {\n    if isPrime(n) {\n      count++\n      fmt.Printf("Prime #%2d = %d\\n", count, n)\n    }\n  }\n}',
+
+  rust: 'fn main() {\n    let mut fib = vec![0u64, 1];\n    for i in 2..20 {\n        let next = fib[i-1] + fib[i-2];\n        fib.push(next);\n    }\n    println!("First 20 Fibonacci numbers:");\n    for (i, f) in fib.iter().enumerate() {\n        println!("  F({:2}) = {}", i, f);\n    }\n}',
+
+  ruby: 'def fizzbuzz(n)\n  (1..n).map do |i|\n    if i % 15 == 0 then "FizzBuzz"\n    elsif i % 3 == 0 then "Fizz"\n    elsif i % 5 == 0 then "Buzz"\n    else i.to_s\n    end\n  end\nend\n\nputs "FizzBuzz (1-30):"\nfizzbuzz(30).each_slice(5) { |s| puts s.join("\\t") }',
+
+  c: '#include <stdio.h>\nint main() {\n    printf("Pascal\'s Triangle (8 rows):\\n\\n");\n    int rows = 8;\n    for (int i = 0; i < rows; i++) {\n        for (int s = 0; s < rows - i - 1; s++)\n            printf("  ");\n        int val = 1;\n        for (int j = 0; j <= i; j++) {\n            printf("%4d", val);\n            val = val * (i - j) / (j + 1);\n        }\n        printf("\\n");\n    }\n    return 0;\n}',
+
+  cpp: '#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    vector<int> v = {42, 17, 93, 5, 68, 31, 84, 56, 12, 77};\n    cout << "Original: ";\n    for (int x : v) cout << x << " ";\n    cout << endl;\n\n    sort(v.begin(), v.end());\n    cout << "Sorted:   ";\n    for (int x : v) cout << x << " ";\n    cout << endl;\n\n    cout << "Min: " << v.front() << ", Max: " << v.back() << endl;\n    return 0;\n}',
+
+  php: '<?php\nfunction factorial($n) {\n    return $n <= 1 ? 1 : $n * factorial($n - 1);\n}\n\necho "Factorials:\\n";\nfor ($i = 1; $i <= 12; $i++) {\n    printf("  %2d! = %s\\n", $i, number_format(factorial($i)));\n}\n?>',
+
+  perl: 'my @words = qw(RunBox Stellar Docker USDC Soroban x402 Agent MCP);\nprint "Word lengths:\\n";\nforeach my $w (sort { length($b) <=> length($a) } @words) {\n    my $bar = "#" x length($w);\n    printf "  %-10s %s (%d)\\n", $w, $bar, length($w);\n}',
+
+  lua: 'function collatz(n)\n  local steps = 0\n  io.write(n)\n  while n ~= 1 do\n    if n % 2 == 0 then n = n / 2\n    else n = 3 * n + 1 end\n    io.write(" -> " .. n)\n    steps = steps + 1\n  end\n  print("")\n  return steps\nend\n\nprint("Collatz sequences:")\nfor _, start in ipairs({7, 15, 27}) do\n  io.write("  " .. start .. ": ")\n  local s = collatz(start)\n  print("  Steps: " .. s)\n  print("")\nend',
+
+  r: 'nums <- rnorm(1000, mean=50, sd=15)\ncat("Generated 1000 random numbers ~ N(50, 15)\\n\\n")\ncat("Mean:  ", round(mean(nums), 2), "\\n")\ncat("SD:    ", round(sd(nums), 2), "\\n")\ncat("Min:   ", round(min(nums), 2), "\\n")\ncat("Max:   ", round(max(nums), 2), "\\n")\ncat("Q1:    ", round(quantile(nums, 0.25), 2), "\\n")\ncat("Median:", round(median(nums), 2), "\\n")\ncat("Q3:    ", round(quantile(nums, 0.75), 2), "\\n")',
+};
+
+const codeEditor = document.getElementById('codeEditor');
+const langSelect = document.getElementById('langSelect');
+const outputArea = document.getElementById('outputArea');
+const runBtn = document.getElementById('runBtn');
+const runMeta = document.getElementById('runMeta');
+const charCount = document.getElementById('charCount');
+
+codeEditor.value = examples.python;
+updateCharCount();
+
+langSelect.addEventListener('change', function() {
+  var lang = langSelect.value;
+  if (examples[lang]) codeEditor.value = examples[lang];
+  updateCharCount();
+});
+
+codeEditor.addEventListener('input', updateCharCount);
+
+function updateCharCount() {
+  var len = codeEditor.value.length;
+  charCount.textContent = len + ' / 1000';
+  charCount.className = 'char-count' + (len > 900 ? (len > 1000 ? ' limit' : ' warn') : '');
+}
+
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+codeEditor.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    runCode();
   }
-  updateClock();
-  setInterval(updateClock, 30000);
-
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-  function addTermLine(html, className = '') {
-    const termBody = document.getElementById('termBody');
-    const cursor = document.getElementById('cursor');
-    const div = document.createElement('div');
-    div.className = 'term-line ' + className;
-    div.innerHTML = html;
-    termBody.insertBefore(div, cursor);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { div.classList.add('visible'); });
-    });
-    return div;
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    var start = codeEditor.selectionStart;
+    var end = codeEditor.selectionEnd;
+    codeEditor.value = codeEditor.value.substring(0, start) + '  ' + codeEditor.value.substring(end);
+    codeEditor.selectionStart = codeEditor.selectionEnd = start + 2;
+    updateCharCount();
   }
+});
 
-  function addMessage(type, html, toolUseText = null) {
-    const msgs = document.getElementById('messages');
-    const wrapper = document.createElement('div');
-    wrapper.className = `msg ${type}`;
+function runCode() {
+  var language = langSelect.value;
+  var code = codeEditor.value;
+  if (!code.trim()) return;
 
-    if (toolUseText) {
-      const toolDiv = document.createElement('div');
-      toolDiv.className = 'tool-use';
-      toolDiv.textContent = '🔧 ' + toolUseText;
-      wrapper.appendChild(toolDiv);
+  outputArea.innerHTML = '';
+  runMeta.innerHTML = '';
+  runBtn.disabled = true;
+  runBtn.innerHTML = '<span class="spinner-sm"></span> Running...';
+
+  try {
+    var url = new URL('/api/demo/run-stream', window.location.origin);
+    url.searchParams.set('language', language);
+    url.searchParams.set('code', code);
+
+    var evtSource = new EventSource(url.toString());
+
+    evtSource.onmessage = function(event) {
+      var data = JSON.parse(event.data);
+      if (data.type === 'stdout') {
+        outputArea.innerHTML += escapeHtml(data.data);
+      } else if (data.type === 'stderr') {
+        outputArea.innerHTML += '<span class="stderr">' + escapeHtml(data.data) + '</span>';
+      } else if (data.type === 'exit') {
+        evtSource.close();
+        var exitClass = data.exitCode === 0 ? 'exit-ok' : 'exit-err';
+        runMeta.innerHTML =
+          '<span class="time">' + data.executionMs + 'ms</span>' +
+          '<span class="' + exitClass + '">exit ' + data.exitCode + '</span>';
+        resetRunBtn();
+      }
+    };
+
+    evtSource.onerror = function() {
+      evtSource.close();
+      outputArea.innerHTML += '<span class="stderr">Connection lost</span>';
+      resetRunBtn();
+    };
+  } catch (err) {
+    outputArea.innerHTML = '<span class="stderr">Error: ' + escapeHtml(err.message) + '</span>';
+    resetRunBtn();
+  }
+}
+
+function resetRunBtn() {
+  runBtn.disabled = false;
+  runBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M4 2l10 6-10 6V2z"/></svg> Run';
+}
+
+function setPrompt(text) {
+  document.getElementById('aiInput').value = text;
+  document.getElementById('aiInput').focus();
+}
+
+document.getElementById('aiInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); runAI(); }
+});
+
+function runAI() {
+  var prompt = document.getElementById('aiInput').value.trim();
+  if (!prompt) return;
+
+  var aiBtn = document.getElementById('aiBtn');
+  var aiThinking = document.getElementById('aiThinking');
+  var aiResult = document.getElementById('aiResult');
+
+  aiBtn.disabled = true;
+  aiThinking.classList.add('visible');
+  aiResult.classList.remove('visible');
+
+  fetch('/api/demo/ai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt: prompt }),
+  })
+  .then(function(resp) { return resp.json().then(function(data) { return { ok: resp.ok, data: data }; }); })
+  .then(function(result) {
+    var data = result.data;
+    aiThinking.classList.remove('visible');
+    aiResult.classList.add('visible');
+
+    if (!result.ok) {
+      document.getElementById('aiCodeDisplay').textContent = '';
+      document.getElementById('aiOutputDisplay').innerHTML = '<span class="stderr">' + escapeHtml(data.error || 'Request failed') + '</span>';
+      document.getElementById('aiLangTag').textContent = '';
+      document.getElementById('aiMeta').innerHTML = '';
+      aiBtn.disabled = false;
+      return;
     }
 
-    const bubble = document.createElement('div');
-    bubble.className = 'msg-bubble';
-    bubble.innerHTML = html;
-    wrapper.appendChild(bubble);
+    document.getElementById('aiCodeDisplay').textContent = data.code || 'No code generated';
+    document.getElementById('aiLangTag').textContent = data.language || '';
 
-    const now = new Date();
-    const h = now.getHours() % 12 || 12;
-    const m = now.getMinutes().toString().padStart(2, '0');
-    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-    const time = document.createElement('div');
-    time.className = 'msg-time';
-    time.textContent = `${h}:${m} ${ampm}`;
-    wrapper.appendChild(time);
+    var output = '';
+    if (data.stdout) output += escapeHtml(data.stdout);
+    if (data.stderr) output += '<span class="stderr">' + escapeHtml(data.stderr) + '</span>';
+    if (data.error) output += '<span class="stderr">' + escapeHtml(data.error) + '</span>';
+    if (!output) output = '<span class="placeholder">No output</span>';
+    document.getElementById('aiOutputDisplay').innerHTML = output;
 
-    msgs.appendChild(wrapper);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { wrapper.classList.add('visible'); });
-    });
-    msgs.scrollTop = msgs.scrollHeight;
-    return wrapper;
-  }
+    var meta = '';
+    if (data.executionMs != null) meta += '<span class="time">' + data.executionMs + 'ms</span>';
+    if (data.exitCode != null) {
+      var cls = data.exitCode === 0 ? 'exit-ok' : 'exit-err';
+      meta += '<span class="' + cls + '">exit ' + data.exitCode + '</span>';
+    }
+    if (data.language) meta += '<span class="lang-tag">' + data.language + '</span>';
+    document.getElementById('aiMeta').innerHTML = meta;
+    aiBtn.disabled = false;
+  })
+  .catch(function(err) {
+    aiThinking.classList.remove('visible');
+    aiResult.classList.add('visible');
+    document.getElementById('aiCodeDisplay').textContent = '';
+    document.getElementById('aiOutputDisplay').innerHTML = '<span class="stderr">Error: ' + escapeHtml(err.message) + '</span>';
+    aiBtn.disabled = false;
+  });
+}
 
-  function showTyping() {
-    const msgs = document.getElementById('messages');
-    const ind = document.createElement('div');
-    ind.style.alignSelf = 'flex-start';
-    const inner = document.createElement('div');
-    inner.className = 'typing-indicator';
-    inner.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-    ind.appendChild(inner);
-    msgs.appendChild(ind);
-    msgs.scrollTop = msgs.scrollHeight;
-    requestAnimationFrame(() => requestAnimationFrame(() => inner.classList.add('visible')));
-    return ind;
-  }
-
-  function typeInput(text) {
-    const input = document.getElementById('tgInput');
-    let i = 0;
-    return new Promise(resolve => {
-      function type() {
-        if (i <= text.length) {
-          input.value = text.substring(0, i);
-          i++;
-          setTimeout(type, 38 + Math.random() * 25);
-        } else {
-          resolve();
-        }
-      }
-      type();
-    });
-  }
-
-  // ── Main animation ─────────────────────────────────────────────────────────
-  async function runDemo() {
-    // Boot
-    await delay(800);
-    document.getElementById('boot').classList.add('hidden');
-    document.getElementById('titleCard').classList.add('visible');
-
-    await delay(1200);
-
-    // Initial terminal prompt
-    addTermLine('<span class="prompt">➜</span> <span class="dim">~</span> <span class="cmd">openclaw gateway</span>');
-    await delay(400);
-    addTermLine('<span class="muted">OpenClaw 2026.4.5 — Gateway started on :19001</span>');
-    await delay(300);
-    addTermLine('<span class="muted">Telegram channel connected · RunBox skill loaded · model: claude-opus-4-5</span>');
-    await delay(300);
-    addTermLine('');
-    await delay(600);
-
-    // User types in Telegram
-    await typeInput('Can you calculate the 100th Fibonacci number by running Python code?');
-    await delay(300);
-    document.getElementById('tgInput').value = '';
-
-    // User message appears
-    addMessage('user', 'Can you calculate the 100th Fibonacci number by running Python code?');
-    await delay(600);
-
-    // Agent typing
-    document.getElementById('agentStatus').textContent = 'typing…';
-    const typing = showTyping();
-    await delay(1800);
-    typing.remove();
-
-    // Terminal: agent decides to use RunBox
-    addTermLine('<span class="dim">[16:20:33]</span> <span class="purple">[agent]</span> <span class="white">User requests code execution → invoking RunBox skill</span>');
-    await delay(400);
-    addTermLine('<span class="dim">[16:20:33]</span> <span class="cyan">[runbox]</span> <span class="white">POST</span> <span class="blue">http://46.101.74.170:4001/api/exec/rent</span>');
-    await delay(700);
-
-    // 402 response
-    addTermLine('<span class="dim">[16:20:33]</span> <span class="cyan">[runbox]</span> <span class="yellow">← 402 Payment Required</span>');
-    await delay(200);
-    addTermLine('<span class="dim">           </span> <span class="muted">payTo: GBYJL74NSTVBUMTACWNE2ETTW7XRNF7ZWEQLQKKZHJZ6UIG2ALXPB5QW</span>');
-    await delay(150);
-    addTermLine('<span class="dim">           </span> <span class="muted">amount: 0.01 USDC · network: stellar:testnet</span>');
-    await delay(500);
-
-    // Payment
-    addTermLine('<span class="dim">[16:20:33]</span> <span class="orange">[stellar]</span> <span class="white">Signing USDC payment from GBG6JRWK24KPGCD57CAB…</span>');
-    await delay(600);
-    addTermLine('<span class="dim">[16:20:34]</span> <span class="orange">[stellar]</span> <span class="white">Submitting to Stellar network…</span>');
-    await delay(1200);
-    addTermLine('<span class="dim">[16:20:36]</span> <span class="orange">[stellar]</span> <span class="green">✓ Transaction confirmed!</span>');
-    await delay(200);
-    addTermLine('<span class="dim">           </span> <span class="muted">hash: a50f0f6a408d42b57e951c7b53194a09…</span>');
-    await delay(500);
-
-    // Claim session
-    addTermLine('<span class="dim">[16:20:36]</span> <span class="cyan">[runbox]</span> <span class="white">POST /api/exec/rent  X-Payment-Hash: a50f0f6a…</span>');
-    await delay(500);
-    addTermLine('<span class="dim">[16:20:36]</span> <span class="cyan">[runbox]</span> <span class="green">← 200 Session granted!</span>');
-    await delay(200);
-    addTermLine('<span class="dim">           </span> <span class="muted">session_id: d655bbd1-33c2-4ecd-b508-b2073be96fe2</span>');
-    await delay(200);
-    addTermLine('<span class="dim">           </span> <span class="muted">expires_at: 2026-04-07T16:25:36Z  (5 min)</span>');
-    await delay(600);
-
-    // Execute code
-    addTermLine('<span class="dim">[16:20:36]</span> <span class="cyan">[runbox]</span> <span class="white">POST /api/exec/run · language: python · 3 lines</span>');
-    await delay(300);
-    addTermLine('<span class="dim">[16:20:37]</span> <span class="purple">[docker]</span> <span class="white">Spawning python:3.11-slim container…</span>');
-    await delay(1500);
-    addTermLine('<span class="dim">[16:20:38]</span> <span class="cyan">[runbox]</span> <span class="green">✓ Execution complete · 892ms · exit 0</span>');
-    await delay(300);
-    addTermLine('<span class="dim">           </span> <span class="green bold">F(100) = 354224848179261915075</span>');
-    await delay(400);
-    addTermLine('');
-
-    // Bot replies in Telegram
-    document.getElementById('agentStatus').textContent = 'online';
-
-    const botMsg = addMessage('bot',
-      `The 100th Fibonacci number is:<br><br>` +
-      `<strong style="font-family:monospace;font-size:14px;color:#30D158">354,224,848,179,261,915,075</strong><br><br>` +
-      `Ran in Python via RunBox sandbox (892ms). Paid <strong>0.01 USDC</strong> on Stellar automatically. ✓`,
-      'runbox: executed python code'
-    );
-    await delay(300);
-
-    // Show Stellar explorer
-    addTermLine('<span class="dim">[16:20:38]</span> <span class="muted">Explorer: https://stellar.expert/explorer/testnet/tx/a50f0f6a…</span>');
-    await delay(800);
-
-    document.getElementById('explorerPopup').classList.add('visible');
-
-    // Loop: restart after 8s pause
-    await delay(8000);
-    document.getElementById('explorerPopup').classList.remove('visible');
-    await delay(600);
-
-    // Fade out and restart
-    document.body.style.transition = 'opacity 0.8s ease';
-    document.body.style.opacity = '0';
-    await delay(900);
-
-    // Clear and restart
-    document.getElementById('termBody').innerHTML = '<span class="cursor" id="cursor"></span>';
-    document.getElementById('messages').innerHTML = '';
-    document.getElementById('tgInput').value = '';
-    document.getElementById('agentStatus').textContent = 'online';
-    document.getElementById('titleCard').classList.remove('visible');
-    document.getElementById('boot').classList.remove('hidden');
-    document.getElementById('boot').style.opacity = '1';
-    document.body.style.opacity = '1';
-    document.getElementById('boot').style.transition = 'opacity 0.8s ease';
-
-    await delay(1200);
-    document.getElementById('boot').classList.add('hidden');
-    document.getElementById('titleCard').classList.add('visible');
-    await delay(600);
-    runDemo();
-  }
-
-  runDemo();
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 </script>
+
 </body>
 </html>
