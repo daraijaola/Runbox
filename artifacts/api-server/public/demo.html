@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RunBox — AI Code Execution Playground</title>
-<meta name="description" content="Pay-per-use isolated code execution for AI agents via x402 + MPP on Stellar. Try it live.">
+<title>RunBox — Isolated Code Execution for AI Agents</title>
+<meta name="description" content="Pay-per-use isolated code execution for AI agents via x402 + MPP on Stellar. Real Docker sandboxes, 19 languages.">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='7' fill='%236366f1'/%3E%3Ctext x='7' y='23' font-family='Inter,sans-serif' font-weight='700' font-size='18' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='7' fill='%230a0a0a'/%3E%3Ctext x='2' y='22' font-family='Inter,sans-serif' font-weight='700' font-size='14' fill='%23e8e8e8'%3ERun%3C/text%3E%3Ctext x='2' y='22' font-family='Inter,sans-serif' font-weight='700' font-size='14'%3E%3Ctspan fill='%23e8e8e8'%3ERu%3C/tspan%3E%3Ctspan fill='%234F9CF7'%3En%3C/tspan%3E%3C/text%3E%3C/svg%3E">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -17,8 +17,8 @@
   --bg: #0a0a0a;
   --fg: #e8e8e8;
   --fg-muted: #737373;
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
+  --accent: #4F9CF7;
+  --accent-hover: #6BB0FF;
   --border: #1a1a1a;
   --border-hover: #2a2a2a;
   --surface: #111111;
@@ -40,23 +40,15 @@
 }
 
 html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-
 body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.6; min-height: 100vh; }
-
 a { color: inherit; text-decoration: none; transition: color 0.2s; }
-
 ::selection { background: var(--accent); color: var(--bg); }
-
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ─── NAV ─── */
 .nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-md) var(--space-3xl);
   background: rgba(30, 30, 30, 0.35);
   backdrop-filter: blur(40px) saturate(180%);
@@ -66,927 +58,468 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
 }
 
 .nav-logo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  text-decoration: none;
-  color: var(--fg);
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 0;
+  text-decoration: none; font-weight: 700; font-size: 20px;
+  letter-spacing: -0.02em;
 }
+.nav-logo .run { color: var(--fg); }
+.nav-logo .box { color: var(--accent); }
 
-.nav-logo-icon {
-  width: 26px;
-  height: 26px;
-  background: var(--accent);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: white;
-  flex-shrink: 0;
-}
-
-.nav-links {
-  display: flex;
-  gap: var(--space-xl);
-}
-
+.nav-links { display: flex; gap: var(--space-xl); }
 .nav-links a {
-  color: var(--fg-muted);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: var(--fg-muted); text-decoration: none; font-size: 14px;
+  font-weight: 500; transition: color 0.2s;
+  display: flex; align-items: center; gap: 6px;
 }
-
 .nav-links a:hover { color: var(--fg); }
 .nav-links a svg { width: 15px; height: 15px; flex-shrink: 0; }
 
 .nav-mobile-toggle {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--fg);
-  cursor: pointer;
-  padding: var(--space-sm);
+  display: none; background: none; border: none;
+  color: var(--fg); cursor: pointer; padding: var(--space-sm);
 }
 
 /* ─── HERO ─── */
 .hero {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 900px; margin: 0 auto;
   padding: var(--space-3xl) var(--space-3xl) var(--space-2xl);
   text-align: center;
 }
 
-.section-label {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
-  color: #ffffff;
-  background: var(--accent);
-  padding: var(--space-xs) var(--space-md);
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: var(--space-md);
-}
-
 .hero h1 {
-  font-size: clamp(36px, 6vw, 64px);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-  margin-bottom: var(--space-lg);
-  color: var(--fg);
+  font-size: clamp(36px, 6vw, 64px); font-weight: 700;
+  line-height: 1.08; letter-spacing: -0.035em;
+  margin-bottom: var(--space-lg); color: var(--fg);
 }
 
 .hero-desc {
-  font-size: 17px;
-  color: var(--fg-muted);
-  line-height: 1.7;
-  max-width: 640px;
-  margin: 0 auto var(--space-xl);
-  text-wrap: balance;
+  font-size: 17px; color: var(--fg-muted); line-height: 1.7;
+  max-width: 660px; margin: 0 auto var(--space-xl); text-wrap: balance;
 }
 
 .hero-buttons {
-  display: flex;
-  gap: var(--space-md);
-  justify-content: center;
-  flex-wrap: wrap;
+  display: flex; gap: var(--space-md);
+  justify-content: center; flex-wrap: wrap;
   margin-bottom: var(--space-2xl);
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 14px var(--space-lg);
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.2s;
-  cursor: pointer;
-  border: none;
+  display: inline-flex; align-items: center; gap: var(--space-sm);
+  padding: 14px var(--space-lg); border-radius: 999px;
+  font-size: 14px; font-weight: 500; text-decoration: none;
+  transition: all 0.2s; cursor: pointer; border: none;
   font-family: var(--font-sans);
 }
-
-.btn-primary {
-  background: var(--fg);
-  color: var(--bg);
-}
-
-.btn-primary:hover {
-  background: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
-}
-
-.btn-secondary {
-  background: var(--surface);
-  color: var(--fg);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-hover);
-  transform: translateY(-2px);
-}
+.btn-primary { background: var(--fg); color: var(--bg); }
+.btn-primary:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,255,255,0.15); }
+.btn-secondary { background: var(--surface); color: var(--fg); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--surface-hover); border-color: var(--border-hover); transform: translateY(-2px); }
 
 .hero-features {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
 .hero-feature {
-  background: var(--bg);
-  padding: var(--space-lg) var(--space-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  text-align: left;
+  background: var(--bg); padding: var(--space-lg) var(--space-md);
+  display: flex; flex-direction: column; gap: var(--space-xs); text-align: left;
 }
-
 .hero-feature-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--fg-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-family: var(--font-mono); font-size: 10px; color: var(--fg-muted);
+  text-transform: uppercase; letter-spacing: 0.1em;
 }
+.hero-feature-row { display: flex; align-items: center; gap: 8px; }
+.hero-feature-value { font-size: 14px; font-weight: 500; color: var(--fg); }
 
-.hero-feature-value {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--fg);
-}
+.hero-feature-row svg { flex-shrink: 0; opacity: 0.9; }
 
-.hero-feature-logos {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.hero-feature-logos svg {
-  opacity: 0.85;
-  transition: opacity 0.2s, transform 0.2s;
-}
-
-.hero-feature-logos svg:hover {
-  opacity: 1;
-  transform: scale(1.15);
-}
-
-/* ─── MAIN TABS ─── */
+/* ─── MAIN ─── */
 .main-content {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: 1100px; margin: 0 auto;
   padding: 0 var(--space-3xl) var(--space-3xl);
   border-top: 1px solid var(--border);
   padding-top: var(--space-2xl);
 }
 
-.section-header {
-  margin-bottom: var(--space-xl);
-  text-align: center;
-}
-
+.section-header { margin-bottom: var(--space-xl); text-align: center; }
 .section-title {
-  font-size: clamp(24px, 4vw, 36px);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
-  color: var(--fg);
+  font-size: clamp(24px, 4vw, 36px); font-weight: 700;
+  line-height: 1.12; letter-spacing: -0.025em; color: var(--fg);
 }
 
 .tabs {
-  display: flex;
-  gap: var(--space-sm);
-  justify-content: center;
-  margin-bottom: var(--space-lg);
+  display: flex; gap: var(--space-sm);
+  justify-content: center; margin-bottom: var(--space-lg);
 }
-
 .tab {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--fg-muted);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 8px 24px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+  color: var(--fg-muted); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 8px 24px; cursor: pointer; transition: all 0.2s ease;
 }
-
-.tab:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-hover);
-  color: var(--fg);
-}
-
-.tab.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #ffffff;
-}
+.tab:hover { background: var(--surface-hover); border-color: var(--border-hover); color: var(--fg); }
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 .panel { display: none; }
 .panel.active { display: block; }
 
 /* ─── PLAYGROUND ─── */
 .playground-wrap {
-  position: relative;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--surface);
+  position: relative; border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden; background: var(--surface);
 }
 
 .terminal-dots {
-  position: absolute;
-  top: 14px;
-  left: 16px;
-  display: flex;
-  gap: 8px;
-  z-index: 2;
+  position: absolute; top: 14px; left: 16px;
+  display: flex; gap: 8px; z-index: 2;
 }
-
-.terminal-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  opacity: 0.8;
-}
-
+.terminal-dot { width: 12px; height: 12px; border-radius: 50%; opacity: 0.8; }
 .terminal-dot:nth-child(1) { background: #ff5f56; }
 .terminal-dot:nth-child(2) { background: #ffbd2e; }
 .terminal-dot:nth-child(3) { background: #27c93f; }
 
 .playground-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between;
   padding: 10px 20px 10px 76px;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);
 }
-
-.playground-bar-left {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-.playground-bar-right {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-}
+.playground-bar-left, .playground-bar-right { display: flex; align-items: center; gap: var(--space-md); }
 
 .bar-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--fg-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-mono); font-size: 11px; color: var(--fg-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
 }
 
 .lang-select {
-  appearance: none;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--fg);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 5px 28px 5px 10px;
-  cursor: pointer;
-  transition: border-color 0.2s;
+  appearance: none; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--fg); font-family: var(--font-mono);
+  font-size: 12px; font-weight: 500; padding: 5px 28px 5px 10px;
+  cursor: pointer; transition: border-color 0.2s;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5l3 3 3-3' fill='none' stroke='%23737373' stroke-width='1.5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
+  background-repeat: no-repeat; background-position: right 8px center;
 }
-
 .lang-select:hover { border-color: var(--border-hover); }
 .lang-select:focus { outline: none; border-color: var(--accent); }
 
 .run-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 18px;
-  background: var(--fg);
-  color: var(--bg);
-  border: none;
-  border-radius: 999px;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 18px; background: var(--fg); color: var(--bg);
+  border: none; border-radius: 999px; font-family: var(--font-sans);
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
 }
-
-.run-btn:hover {
-  background: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-}
-
+.run-btn:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
 .run-btn:active { transform: translateY(0); }
 .run-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
 .run-btn svg { width: 10px; height: 10px; }
 
-.playground-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.pane {
-  min-height: 0;
-}
-
-.pane + .pane {
-  border-left: 1px solid var(--border);
-}
+.playground-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.pane { min-height: 0; }
+.pane + .pane { border-left: 1px solid var(--border); }
 
 .pane-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--fg-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 10px; color: var(--fg-muted);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 10px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
 }
 
 .code-editor {
-  width: 100%;
-  height: 320px;
-  padding: 16px 20px;
-  background: transparent;
-  border: none;
-  color: var(--fg);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-  resize: none;
-  tab-size: 2;
+  width: 100%; height: 320px; padding: 16px 20px;
+  background: transparent; border: none; color: var(--fg);
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.7;
+  resize: none; tab-size: 2;
 }
-
 .code-editor:focus { outline: none; }
 .code-editor::placeholder { color: #2a2a2a; }
 
 .output-area {
-  width: 100%;
-  height: 320px;
-  padding: 16px 20px;
-  background: transparent;
-  color: var(--green);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
+  width: 100%; height: 320px; padding: 16px 20px;
+  background: transparent; color: var(--green);
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.7;
+  overflow-y: auto; white-space: pre-wrap; word-break: break-all;
 }
-
 .output-area .stderr { color: var(--red); }
 .output-area .placeholder { color: #2a2a2a; }
 
 .playground-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: 10px 20px;
-  border-top: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
+  display: flex; align-items: center; gap: var(--space-md);
+  padding: 10px 20px; border-top: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
 }
 
 .run-meta {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--fg-muted);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted);
+  display: flex; align-items: center; gap: 12px;
 }
-
 .run-meta .time { color: var(--green); }
 .run-meta .exit-ok { color: var(--green); }
 .run-meta .exit-err { color: var(--red); }
 
-.char-count {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: #333;
-  margin-left: auto;
-}
-
+.char-count { font-family: var(--font-mono); font-size: 11px; color: #333; margin-left: auto; }
 .char-count.warn { color: var(--yellow); }
 .char-count.limit { color: var(--red); }
 
 .kbd {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: #444;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 6px;
+  font-family: var(--font-mono); font-size: 10px; color: #444;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 6px;
 }
 
-/* ─── AI AGENT ─── */
+/* ─── AI PANEL ─── */
 .ai-panel { padding-top: 8px; }
 
 .ai-suggestions {
-  display: flex;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: var(--space-md);
+  display: flex; gap: var(--space-sm); flex-wrap: wrap;
+  justify-content: center; margin-bottom: var(--space-md);
 }
-
 .ai-suggestion {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--fg-muted);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: all 0.2s;
+  font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 8px 16px; cursor: pointer; transition: all 0.2s;
 }
-
-.ai-suggestion:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-hover);
-  color: var(--fg);
-}
+.ai-suggestion:hover { background: var(--surface-hover); border-color: var(--border-hover); color: var(--fg); }
 
 .ai-input-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: var(--space-xl);
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
+  display: flex; gap: 12px; margin-bottom: var(--space-xl);
+  max-width: 700px; margin-left: auto; margin-right: auto;
 }
-
 .ai-input {
-  flex: 1;
-  padding: 14px 20px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  color: var(--fg);
-  font-family: var(--font-sans);
-  font-size: 14px;
+  flex: 1; padding: 14px 20px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  color: var(--fg); font-family: var(--font-sans); font-size: 14px;
   transition: border-color 0.2s;
 }
-
 .ai-input:focus { outline: none; border-color: var(--border-hover); }
 .ai-input::placeholder { color: #333; }
 
 .ai-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 14px 28px;
-  background: var(--fg);
-  color: var(--bg);
-  border: none;
-  border-radius: 999px;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: var(--space-sm);
+  padding: 14px 28px; background: var(--fg); color: var(--bg);
+  border: none; border-radius: 999px; font-family: var(--font-sans);
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
   white-space: nowrap;
 }
-
-.ai-btn:hover {
-  background: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-}
-
+.ai-btn:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
 .ai-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .ai-status { display: none; text-align: center; padding: 48px 0; }
 .ai-status.visible { display: block; }
-
 .ai-status .spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--border);
-  border-top-color: var(--fg-muted);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
+  width: 24px; height: 24px; border: 2px solid var(--border);
+  border-top-color: var(--fg-muted); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
 }
-
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.ai-status p {
-  font-size: 14px;
-  color: var(--fg-muted);
-}
+.ai-status p { font-size: 14px; color: var(--fg-muted); }
 
 .ai-error-box {
-  display: none;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: var(--space-lg);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  display: none; max-width: 600px; margin: 0 auto;
+  padding: var(--space-xl); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
   text-align: center;
 }
-
 .ai-error-box.visible { display: block; }
-
 .ai-error-box .error-icon {
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 95, 86, 0.1);
-  border: 1px solid rgba(255, 95, 86, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto var(--space-md);
-  color: var(--red);
-  font-size: 18px;
+  width: 40px; height: 40px; background: rgba(255,95,86,0.1);
+  border: 1px solid rgba(255,95,86,0.2); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto var(--space-md); color: var(--red); font-size: 18px; font-weight: 700;
 }
-
-.ai-error-box h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--fg);
-  margin-bottom: var(--space-sm);
-}
-
-.ai-error-box p {
-  font-size: 14px;
-  color: var(--fg-muted);
-  line-height: 1.6;
-  margin-bottom: var(--space-md);
-}
-
+.ai-error-box h3 { font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: var(--space-sm); }
+.ai-error-box p { font-size: 14px; color: var(--fg-muted); line-height: 1.6; margin-bottom: var(--space-md); }
 .ai-error-box .switch-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 24px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 999px;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 24px; background: var(--accent); color: white;
+  border: none; border-radius: 999px; font-family: var(--font-sans);
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
 }
-
 .ai-error-box .switch-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
 .ai-result-wrap { display: none; }
-
-.ai-result-wrap.visible {
-  display: block;
-}
+.ai-result-wrap.visible { display: block; }
 
 .ai-result {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; background: var(--surface);
 }
-
-.ai-result .terminal-dots {
-  position: absolute;
-  top: 14px;
-  left: 16px;
-}
-
 .ai-result-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px 10px 76px;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--border);
-  position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px 10px 76px; position: relative;
+  background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);
 }
-
-.ai-result-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
+.ai-result-grid { display: grid; grid-template-columns: 1fr 1fr; }
 .ai-result-grid .pane + .pane { border-left: 1px solid var(--border); }
 
 .ai-code-display, .ai-output-display {
-  padding: 16px 20px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  overflow-y: auto;
-  max-height: 320px;
-  min-height: 120px;
+  padding: 16px 20px; font-family: var(--font-mono);
+  font-size: 13px; line-height: 1.7; white-space: pre-wrap;
+  overflow-y: auto; max-height: 320px; min-height: 120px;
 }
-
 .ai-code-display { color: var(--fg); }
 .ai-output-display { color: var(--green); }
 .ai-output-display .stderr { color: var(--red); }
 
-.ai-result-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: 10px 20px;
-  border-top: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.ai-meta {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.ai-meta span {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--fg-muted);
-}
+.ai-meta { display: flex; gap: 12px; align-items: center; }
+.ai-meta span { font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted); }
 
 .lang-tag {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--accent);
-  background: rgba(99, 102, 241, 0.1);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-mono); font-size: 11px; color: var(--accent);
+  background: rgba(79,156,247,0.1); padding: 2px 8px; border-radius: 4px;
+  font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;
 }
+
+/* ─── USE CASES ─── */
+.use-cases-section {
+  max-width: 1100px; margin: 0 auto;
+  padding: var(--space-3xl) var(--space-3xl);
+  border-top: 1px solid var(--border);
+}
+
+.use-cases-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; margin-top: var(--space-xl);
+}
+
+.use-case {
+  background: var(--bg); padding: var(--space-lg);
+  transition: background 0.2s;
+}
+.use-case:hover { background: var(--surface); }
+
+.use-case-header { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: 6px; }
+.use-case-icon { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.use-case-icon svg { width: 18px; height: 18px; }
+.use-case-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--fg); }
+.use-case-desc { font-size: 13px; color: var(--fg-muted); line-height: 1.5; }
 
 /* ─── FOOTER ─── */
-.footer {
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-
+.footer { border-top: 1px solid var(--border); background: var(--surface); }
 .footer-content {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: 1100px; margin: 0 auto;
   padding: var(--space-2xl) var(--space-3xl) var(--space-xl);
 }
-
 .footer-main {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: var(--space-xl);
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: var(--space-xl);
 }
-
-.footer-brand {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
+.footer-brand { display: flex; flex-direction: column; gap: var(--space-sm); }
 .footer-logo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--fg);
+  display: flex; align-items: center; gap: 0;
+  font-weight: 700; font-size: 18px;
 }
+.footer-logo .run { color: var(--fg); }
+.footer-logo .box { color: var(--accent); }
+.footer-tagline { font-size: 13px; color: var(--fg-muted); line-height: 1.5; max-width: 280px; }
 
-.footer-tagline {
-  font-size: 13px;
-  color: var(--fg-muted);
-  line-height: 1.5;
-  max-width: 280px;
-}
-
-.footer-nav {
-  display: flex;
-  gap: var(--space-3xl);
-}
-
+.footer-nav { display: flex; gap: var(--space-3xl); }
 .footer-col h4 {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--fg);
-  margin-bottom: var(--space-md);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-family: var(--font-mono);
+  font-size: 12px; font-weight: 600; color: var(--fg);
+  margin-bottom: var(--space-md); text-transform: uppercase;
+  letter-spacing: 0.08em; font-family: var(--font-mono);
 }
-
 .footer-col a {
-  display: block;
-  font-size: 13px;
-  color: var(--fg-muted);
-  margin-bottom: var(--space-sm);
-  transition: color 0.2s;
+  display: block; font-size: 13px; color: var(--fg-muted);
+  margin-bottom: var(--space-sm); transition: color 0.2s;
 }
-
 .footer-col a:hover { color: var(--fg); }
 
 .footer-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: var(--space-lg);
-  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: var(--space-lg); border-top: 1px solid var(--border);
 }
-
-.footer-badges {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
+.footer-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .footer-badge {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--fg-muted);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 3px 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-mono); font-size: 10px; color: var(--fg-muted);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 3px 8px; text-transform: uppercase; letter-spacing: 0.05em;
 }
+.footer-copy { font-size: 12px; color: var(--fg-muted); }
 
-.footer-copy {
-  font-size: 12px;
-  color: var(--fg-muted);
-}
-
-/* ─── SPINNER ─── */
 .spinner-sm {
-  width: 10px;
-  height: 10px;
-  border: 2px solid rgba(0,0,0,0.2);
-  border-top-color: var(--bg);
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  display: inline-block;
+  width: 10px; height: 10px; border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: var(--bg); border-radius: 50%;
+  animation: spin 0.6s linear infinite; display: inline-block;
 }
 
 /* ─── ANIMATIONS ─── */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.hero .section-label { animation: fadeInUp 0.6s ease-out; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 .hero h1 { animation: fadeInUp 0.6s ease-out 0.1s backwards; }
 .hero-desc { animation: fadeInUp 0.6s ease-out 0.2s backwards; }
 .hero-buttons { animation: fadeInUp 0.6s ease-out 0.3s backwards; }
 .hero-features { animation: fadeInUp 0.6s ease-out 0.4s backwards; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
-/* ─── RESPONSIVE: TABLET ─── */
+/* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
   .nav { padding: var(--space-md) var(--space-lg); }
   .hero { padding: var(--space-2xl) var(--space-lg); }
   .main-content { padding: 0 var(--space-lg) var(--space-2xl); padding-top: var(--space-xl); }
+  .use-cases-section { padding: var(--space-2xl) var(--space-lg); }
   .footer-content { padding: var(--space-xl) var(--space-lg); }
-
   .hero-features { grid-template-columns: repeat(2, 1fr); }
-
   .playground-grid { grid-template-columns: 1fr; }
   .pane + .pane { border-left: none; border-top: 1px solid var(--border); }
-
   .ai-result-grid { grid-template-columns: 1fr; }
   .ai-result-grid .pane + .pane { border-left: none; border-top: 1px solid var(--border); }
-
+  .use-cases-grid { grid-template-columns: 1fr; }
   .footer-main { flex-direction: column; gap: var(--space-xl); }
   .footer-nav { gap: var(--space-xl); }
 }
 
-/* ─── RESPONSIVE: MOBILE ─── */
 @media (max-width: 768px) {
   .nav-links {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: rgba(10, 10, 10, 0.98);
-    backdrop-filter: blur(20px);
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: rgba(10,10,10,0.98); backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    flex-direction: column;
-    padding: var(--space-sm) var(--space-lg);
-    gap: 0;
-    border-bottom: 1px solid var(--border);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-8px);
+    flex-direction: column; padding: var(--space-sm) var(--space-lg);
+    gap: 0; border-bottom: 1px solid var(--border);
+    opacity: 0; visibility: hidden; transform: translateY(-8px);
     transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
     pointer-events: none;
   }
-
-  .nav-links.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  .nav-links a {
-    padding: 14px 0;
-    display: flex;
-    border-bottom: 1px solid var(--border);
-    font-size: 15px;
-  }
-
+  .nav-links.active { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+  .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
   .nav-links a:last-child { border-bottom: none; }
-
   .nav-mobile-toggle { display: block; }
-
   .hero h1 { font-size: 32px; }
   .hero-desc { font-size: 15px; }
-
-  .hero-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
+  .hero-buttons { flex-direction: column; align-items: stretch; }
   .btn { justify-content: center; width: 100%; }
-
-  .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; justify-content: flex-start; scrollbar-width: none; padding: 0 4px; }
+  .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; justify-content: flex-start; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
-
   .ai-input-row { flex-direction: column; }
   .ai-btn { width: 100%; justify-content: center; }
-  .ai-suggestions { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; padding-bottom: 4px; }
+  .ai-suggestions { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
   .ai-suggestions::-webkit-scrollbar { display: none; }
-
-  .playground-bar { padding: 10px 16px 10px 16px; flex-wrap: wrap; gap: 8px; }
+  .playground-bar { padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
   .terminal-dots { display: none; }
   .playground-bar-left, .playground-bar-right { width: 100%; }
   .playground-bar-right { justify-content: space-between; }
-
   .code-editor, .output-area { height: 240px; padding: 12px 16px; font-size: 12px; }
   .ai-code-display, .ai-output-display { max-height: 240px; padding: 12px 16px; font-size: 12px; }
-
   .footer-nav { flex-wrap: wrap; gap: var(--space-lg); }
   .footer-bottom { flex-direction: column; gap: var(--space-md); text-align: center; }
   .footer-badges { justify-content: center; }
+  .section-title br { display: none; }
 }
 
-/* ─── RESPONSIVE: SMALL MOBILE ─── */
 @media (max-width: 480px) {
   .nav { padding: var(--space-sm) var(--space-md); }
   .hero { padding: var(--space-lg) 20px; }
   .main-content { padding: 0 20px var(--space-xl); padding-top: var(--space-lg); }
+  .use-cases-section { padding: var(--space-xl) 20px; }
   .footer-content { padding: var(--space-lg) 20px var(--space-md); }
-
   .hero h1 { font-size: 26px; }
   .hero-desc { font-size: 14px; margin-bottom: var(--space-md); }
-  .section-label { font-size: 11px; }
   .hero-features { grid-template-columns: 1fr 1fr; }
-
   .tab { font-size: 12px; padding: 6px 16px; }
-
   .code-editor, .output-area { height: 200px; }
 }
 </style>
@@ -995,8 +528,7 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
 
 <nav class="nav">
   <a href="/" class="nav-logo">
-    <div class="nav-logo-icon">R</div>
-    <span>RunBox</span>
+    <span class="run">Run</span><span class="box">Box</span>
   </a>
   <div class="nav-links" id="navLinks">
     <a href="https://github.com/daraijaola/Runbox" target="_blank" rel="noopener">
@@ -1004,35 +536,26 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
       GitHub
     </a>
     <a href="https://www.npmjs.com/package/runbox-client" target="_blank" rel="noopener">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 0v16h16V0H0zm13 13H8V5h2.5v5.5H13V3H3v10z"/></svg>
+      <svg viewBox="0 0 780 250" fill="currentColor"><path d="M240 250h100V50h100v200h100V0H240v250zm-240 0h240V0H0v250zm40-210h60v170H40V40zm200 0h60v170h-60V40z"/></svg>
       npm
     </a>
     <a href="https://www.npmjs.com/package/runbox-mcp" target="_blank" rel="noopener">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.2a5.8 5.8 0 110 11.6A5.8 5.8 0 018 2.2zM7 5v6l5-3z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
       MCP
     </a>
     <a href="https://lab.stellar.org/r/testnet/contract/CCXVU6NNDBJ23QSG6OGKUMUEXNLVOSJ4SZOJK3AAL2NTHBCAED66SCG3" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.1 2C6.5 2 2 6.5 2 12.1s4.5 10.1 10.1 10.1 10.1-4.5 10.1-10.1S17.7 2 12.1 2zm5.6 14.3l-1.3.7-8.8-4.8 1.3-.7 8.8 4.8zm0-2.7l-1.3.7L7.6 9.5V7.8l10.1 5.8zm-11.4.7L5 13.6l8.8-4.8 1.3.7-8.8 4.8zm0-2.7L5 10.9l8.8-4.8 1.3.7-8.8 4.8z"/></svg>
-      Soroban
-    </a>
-    <a href="https://dorahacks.io/hackathon/stellar-agents-x402-stripe-mpp" target="_blank" rel="noopener">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0L1 4v8l7 4 7-4V4L8 0zm5 11l-5 3-5-3V5l5-3 5 3v6z"/></svg>
-      Hackathon
+      <svg viewBox="0 0 144 144" fill="currentColor"><path d="M72.5 2C33.9 2 2.5 33.4 2.5 72s31.4 70 70 70 70-31.4 70-70S111.1 2 72.5 2zm0 10c33.1 0 60 26.9 60 60s-26.9 60-60 60-60-26.9-60-60 26.9-60 60-60zM42.5 52l60 30-8 4-52-26v-8zm0 18l60 30-8 4-52-26v-8z"/></svg>
+      Contract
     </a>
   </div>
   <button class="nav-mobile-toggle" aria-label="Toggle menu" onclick="document.getElementById('navLinks').classList.toggle('active')">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path d="M3 12h18M3 6h18M3 18h18"/>
-    </svg>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
   </button>
 </nav>
 
 <section class="hero">
-  <span class="section-label">Live Demo</span>
-
   <h1>Isolated Code Execution<br>for AI Agents</h1>
-
-  <p class="hero-desc">Pay-per-use Docker sandboxes with x402 micropayments on Stellar. Real execution, real containers, real output. Try it live.</p>
+  <p class="hero-desc">AI agents need to run untrusted code safely. RunBox gives them pay-per-use Docker sandboxes with x402 micropayments settled on Stellar. No API keys, no subscriptions — just HTTP and USDC.</p>
 
   <div class="hero-buttons">
     <a href="https://github.com/daraijaola/Runbox" target="_blank" rel="noopener" class="btn btn-primary">
@@ -1040,34 +563,36 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
       View on GitHub
     </a>
     <a href="https://github.com/daraijaola/Runbox/releases/tag/v1.0.0" target="_blank" rel="noopener" class="btn btn-secondary">
-      <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M2.5 2a.5.5 0 00-.5.5v11a.5.5 0 00.5.5h11a.5.5 0 00.5-.5v-11a.5.5 0 00-.5-.5h-11zM8 4.5a.75.75 0 01.75.75v2h2a.75.75 0 010 1.5h-2v2a.75.75 0 01-1.5 0v-2h-2a.75.75 0 010-1.5h2v-2A.75.75 0 018 4.5z"/></svg>
       v1.0.0 Release
     </a>
   </div>
 
   <div class="hero-features">
     <div class="hero-feature">
-      <div class="hero-feature-label">Protocol</div>
-      <div class="hero-feature-logos">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#e8e8e8"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.2L19.5 8 12 11.8 4.5 8 12 4.2z"/></svg>
+      <div class="hero-feature-label">Payment</div>
+      <div class="hero-feature-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#27c93f" stroke-width="1.5"/><path d="M12 8v4l2.5 2.5" stroke="#27c93f" stroke-width="1.5" stroke-linecap="round"/></svg>
         <span class="hero-feature-value">x402 + MPP</span>
       </div>
     </div>
     <div class="hero-feature">
       <div class="hero-feature-label">Languages</div>
-      <div class="hero-feature-value">19 Supported</div>
+      <div class="hero-feature-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F9CF7" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <span class="hero-feature-value">19 Supported</span>
+      </div>
     </div>
     <div class="hero-feature">
       <div class="hero-feature-label">Settlement</div>
-      <div class="hero-feature-logos">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#e8e8e8"><path d="M12.1 2C6.5 2 2 6.5 2 12.1s4.5 10.1 10.1 10.1 10.1-4.5 10.1-10.1S17.7 2 12.1 2zm5.6 14.3l-1.3.7-8.8-4.8 1.3-.7 8.8 4.8z"/></svg>
+      <div class="hero-feature-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#e8e8e8" stroke-width="1.5"/><path d="M7 10l10 5M7 14l10-5" stroke="#e8e8e8" stroke-width="1.5"/></svg>
         <span class="hero-feature-value">Stellar USDC</span>
       </div>
     </div>
     <div class="hero-feature">
       <div class="hero-feature-label">Isolation</div>
-      <div class="hero-feature-logos">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#2496ED"><path d="M13.98 11.08h2.12v1.92h-2.12zm-2.59 0H13.5v1.92h-2.11zm-2.6 0h2.12v1.92H8.79zm-2.6 0h2.12v1.92H6.19zm2.6-2.39h2.12v1.92H8.79zm2.6 0H13.5v1.92h-2.11zm2.59 0h2.12v1.92h-2.12zm-2.59-2.39H13.5v1.92h-2.11zm2.59 0h2.12v1.92h-2.12zM22 13.5c-.4-.73-1.2-1.2-1.2-1.2s.1-.62-.2-1.35c-.3-.73-.9-1.01-.9-1.01s-.3-.53-.8-.87c0 0 .1-.3-.1-.7-.2-.4-.8-.7-.8-.7a5.3 5.3 0 00-1.1-.3c-.7-.1-1.3.1-1.3.1-1.05-.5-2.2-.5-2.2-.5H12c-3.24 0-5.87 1.77-7.25 4.5C3.14 14.39 3 17 3 17c0 .5.04 1 .04 1C3.04 20 4 21 4 21h16s1-.78 1.6-3c.3-1.1.4-2.8.4-2.8s0-.8-.03-1.7z"/></svg>
+      <div class="hero-feature-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#2496ED"><path d="M21.81 10.25c-.06-.04-.56-.43-1.64-.43-.28 0-.56.03-.84.08-.21-1.4-1.38-2.09-1.43-2.12l-.29-.17-.18.27c-.24.36-.43.77-.49 1.18-.13.71-.05 1.37.23 1.95-.34.19-.9.34-1.69.34H2.12l-.06.43c-.15 1.07-.15 4.4 2.54 6.97C6.33 20.31 8.57 21 11.4 21c5.76 0 10.03-2.65 12.04-7.47.79.02 2.49 0 3.37-1.65l.17-.31-.29-.18zM6.94 14.5H5.15V12.7h1.79v1.8zm0-2.25H5.15v-1.8h1.79v1.8zm2.25 2.25H7.4V12.7h1.79v1.8zm0-2.25H7.4v-1.8h1.79v1.8zm2.25 2.25H9.65V12.7h1.79v1.8zm0-2.25H9.65v-1.8h1.79v1.8zm2.24 2.25h-1.79V12.7h1.79v1.8zm0-2.25h-1.79v-1.8h1.79v1.8zm0-2.25h-1.79V7.7h1.79v1.8z"/></svg>
         <span class="hero-feature-value">Docker</span>
       </div>
     </div>
@@ -1076,8 +601,7 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
 
 <div class="main-content">
   <div class="section-header">
-    <span class="section-label">Interactive</span>
-    <h2 class="section-title">Execute code in real<br>Docker containers</h2>
+    <h2 class="section-title">Try it — execute code in real<br>Docker containers</h2>
   </div>
 
   <div class="tabs">
@@ -1087,11 +611,7 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
 
   <div class="panel active" id="panel-playground">
     <div class="playground-wrap">
-      <div class="terminal-dots">
-        <span class="terminal-dot"></span>
-        <span class="terminal-dot"></span>
-        <span class="terminal-dot"></span>
-      </div>
+      <div class="terminal-dots"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span></div>
       <div class="playground-bar">
         <div class="playground-bar-left">
           <span class="bar-label">Language</span>
@@ -1138,52 +658,36 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
   <div class="panel" id="panel-ai">
     <div class="ai-panel">
       <div class="ai-suggestions">
-        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">What is the 100th prime number?</button>
-        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Generate a random maze</button>
-        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Calculate pi to 50 digits</button>
-        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Sort 10 random numbers with quicksort</button>
-        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Sierpinski triangle in ASCII</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Scrape and parse a JSON API</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Analyze a CSV dataset</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Run a security audit on code</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Generate and test a REST handler</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Validate and transform JSON schema</button>
       </div>
       <div class="ai-input-row">
-        <input class="ai-input" id="aiInput" type="text" placeholder="Ask the AI to compute something..." maxlength="500">
-        <button class="ai-btn" id="aiBtn" onclick="runAI()">
-          <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm1 10H7V7h2v4zm0-5H7V4h2v2z"/></svg>
-          Ask AI
-        </button>
+        <input class="ai-input" id="aiInput" type="text" placeholder="Describe a task for the AI agent..." maxlength="500">
+        <button class="ai-btn" id="aiBtn" onclick="runAI()">Ask AI</button>
       </div>
-
-      <div class="ai-status" id="aiThinking">
-        <div class="spinner"></div>
-        <p>Claude is writing and executing code...</p>
-      </div>
-
+      <div class="ai-status" id="aiThinking"><div class="spinner"></div><p>Agent is writing and executing code...</p></div>
       <div class="ai-error-box" id="aiError">
         <div class="error-icon">!</div>
         <h3>AI Temporarily Unavailable</h3>
-        <p id="aiErrorMsg">The AI service is temporarily unavailable. Try the Playground tab instead — you can write and execute code in 12 languages with real Docker containers.</p>
+        <p id="aiErrorMsg">The AI service is temporarily offline. Try the Playground tab — you can write and run code in 12 languages with real Docker containers.</p>
         <button class="switch-btn" onclick="switchToPlayground()">
           <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M4 2l10 6-10 6V2z"/></svg>
           Switch to Playground
         </button>
       </div>
-
       <div class="ai-result-wrap" id="aiResult">
         <div class="ai-result">
-          <div class="ai-result-bar" style="position:relative">
-            <div class="terminal-dots">
-              <span class="terminal-dot"></span>
-              <span class="terminal-dot"></span>
-              <span class="terminal-dot"></span>
-            </div>
-            <span class="bar-label" style="margin-left:60px">AI Result</span>
+          <div class="ai-result-bar">
+            <div class="terminal-dots" style="position:absolute;top:14px;left:16px"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span></div>
+            <span class="bar-label" style="margin-left:60px">Result</span>
             <div class="ai-meta" id="aiMeta"></div>
           </div>
           <div class="ai-result-grid">
             <div class="pane">
-              <div class="pane-label">
-                Generated Code
-                <span class="lang-tag" id="aiLangTag" style="margin-left:8px"></span>
-              </div>
+              <div class="pane-label">Generated Code <span class="lang-tag" id="aiLangTag"></span></div>
               <div class="ai-code-display" id="aiCodeDisplay"></div>
             </div>
             <div class="pane">
@@ -1197,14 +701,61 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
   </div>
 </div>
 
+<section class="use-cases-section">
+  <div class="section-header">
+    <h2 class="section-title">Built for AI agents</h2>
+  </div>
+  <div class="use-cases-grid">
+    <div class="use-case">
+      <div class="use-case-header">
+        <div class="use-case-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+        <div class="use-case-title">Safe Code Execution</div>
+      </div>
+      <div class="use-case-desc">Agents run untrusted user code in isolated Docker containers. No host access, auto-cleanup, resource limits enforced.</div>
+    </div>
+    <div class="use-case">
+      <div class="use-case-header">
+        <div class="use-case-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/></svg></div>
+        <div class="use-case-title">Pay-Per-Use</div>
+      </div>
+      <div class="use-case-desc">x402 micropayments per execution. Agents pay in USDC on Stellar — no API keys, no accounts, no billing dashboards.</div>
+    </div>
+    <div class="use-case">
+      <div class="use-case-header">
+        <div class="use-case-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+        <div class="use-case-title">Data Processing</div>
+      </div>
+      <div class="use-case-desc">Agents analyze CSV files, transform JSON, run pandas scripts, or process images — all in sandboxed Python containers.</div>
+    </div>
+    <div class="use-case">
+      <div class="use-case-header">
+        <div class="use-case-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+        <div class="use-case-title">Code Validation</div>
+      </div>
+      <div class="use-case-desc">Agents test generated code before delivering it. Write, compile, execute, verify output — all via a single API call.</div>
+    </div>
+    <div class="use-case">
+      <div class="use-case-header">
+        <div class="use-case-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+        <div class="use-case-title">DevOps Automation</div>
+      </div>
+      <div class="use-case-desc">Agents run shell scripts, test deployments, check dependencies, or validate configurations in clean environments.</div>
+    </div>
+    <div class="use-case">
+      <div class="use-case-header">
+        <div class="use-case-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+        <div class="use-case-title">Multi-Language</div>
+      </div>
+      <div class="use-case-desc">Python, JavaScript, Go, Rust, C, Ruby, PHP and 12 more. Agents pick the right language for each task automatically.</div>
+    </div>
+  </div>
+</section>
+
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-main">
       <div class="footer-brand">
-        <div class="footer-logo">
-          <div class="nav-logo-icon" style="width:22px;height:22px;font-size:11px;border-radius:5px">R</div>
-          RunBox
-        </div>
+        <div class="footer-logo"><span class="run">Run</span><span class="box">Box</span></div>
         <p class="footer-tagline">Pay-per-use isolated code execution for AI agents. Built on Stellar, powered by x402.</p>
       </div>
       <div class="footer-nav">
@@ -1218,8 +769,7 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
         <div class="footer-col">
           <h4>Network</h4>
           <a href="https://lab.stellar.org/r/testnet/contract/CCXVU6NNDBJ23QSG6OGKUMUEXNLVOSJ4SZOJK3AAL2NTHBCAED66SCG3" target="_blank" rel="noopener">Soroban Contract</a>
-          <a href="https://dorahacks.io/hackathon/stellar-agents-x402-stripe-mpp" target="_blank" rel="noopener">Stellar Hacks</a>
-          <a href="https://stellar.org" target="_blank" rel="noopener">Stellar.org</a>
+          <a href="https://stellar.org" target="_blank" rel="noopener">Stellar</a>
         </div>
       </div>
     </div>
@@ -1241,29 +791,29 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
 
 <script>
 var examples = {
-  python: 'def fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n\nfor i in [10, 20, 30, 40, 50]:\n    print(f"fib({i}) = {fibonacci(i):,}")',
+  python: 'import json\n\ndata = [\n    {"name": "Alice", "role": "agent", "tasks": 47},\n    {"name": "Bob", "role": "agent", "tasks": 32},\n    {"name": "Carol", "role": "supervisor", "tasks": 89},\n]\n\ntotal = sum(d["tasks"] for d in data)\nprint(f"Total tasks: {total}")\nprint(f"Average: {total / len(data):.1f}")\n\nfor d in sorted(data, key=lambda x: -x["tasks"]):\n    bar = "#" * (d["tasks"] // 5)\n    print(f\'  {d["name"]:8} {d["role"]:12} {bar} ({d["tasks"]})\')',
 
-  javascript: 'function sieve(n) {\n  const primes = new Array(n + 1).fill(true);\n  primes[0] = primes[1] = false;\n  for (let i = 2; i * i <= n; i++)\n    if (primes[i])\n      for (let j = i * i; j <= n; j += i)\n        primes[j] = false;\n  return primes.reduce((a, v, i) => v ? [...a, i] : a, []);\n}\nconst p = sieve(100);\nconsole.log("Primes up to 100:");\nconsole.log(p.join(", "));\nconsole.log("Count:", p.length);',
+  javascript: 'const agents = [\n  { id: "agent-01", status: "running", executions: 142 },\n  { id: "agent-02", status: "idle", executions: 87 },\n  { id: "agent-03", status: "running", executions: 231 },\n];\n\nconsole.log("Agent Status Report");\nconsole.log("=".repeat(45));\nagents.forEach(a => {\n  const icon = a.status === "running" ? "[*]" : "[ ]";\n  console.log(`${icon} ${a.id}  ${a.status.padEnd(8)}  ${a.executions} runs`);\n});\nconsole.log("\\nTotal executions:", agents.reduce((s, a) => s + a.executions, 0));',
 
-  bash: 'echo "=== System Info ==="\necho "Date: $(date)"\necho "User: $(whoami)"\necho ""\necho "=== Counting to 10 ==="\nfor i in $(seq 1 10); do\n  printf "%2d " $i\n  printf \'%0.s#\' $(seq 1 $i)\n  echo ""\ndone',
+  bash: 'echo "=== Environment Check ==="\necho "Date: $(date)"\necho "User: $(whoami)"\necho "Shell: $SHELL"\necho ""\necho "=== Installed Languages ==="\nfor cmd in python3 node ruby perl lua; do\n  if command -v $cmd &>/dev/null; then\n    version=$($cmd --version 2>&1 | head -1)\n    printf "  %-10s %s\\n" "$cmd" "$version"\n  fi\ndone',
 
-  go: 'package main\n\nimport (\n  "fmt"\n  "math"\n)\n\nfunc isPrime(n int) bool {\n  if n < 2 { return false }\n  for i := 2; i <= int(math.Sqrt(float64(n))); i++ {\n    if n%i == 0 { return false }\n  }\n  return true\n}\n\nfunc main() {\n  count := 0\n  for n := 2; count < 20; n++ {\n    if isPrime(n) {\n      count++\n      fmt.Printf("Prime #%2d = %d\\n", count, n)\n    }\n  }\n}',
+  go: 'package main\n\nimport (\n\t"fmt"\n\t"strings"\n\t"sort"\n)\n\nfunc main() {\n\tdata := map[string]int{\n\t\t"python": 142, "javascript": 98,\n\t\t"go": 67, "rust": 45, "bash": 31,\n\t}\n\n\tkeys := make([]string, 0, len(data))\n\tfor k := range data { keys = append(keys, k) }\n\tsort.Slice(keys, func(i, j int) bool {\n\t\treturn data[keys[i]] > data[keys[j]]\n\t})\n\n\tfmt.Println("RunBox Execution Stats")\n\tfmt.Println(strings.Repeat("-", 35))\n\tfor _, k := range keys {\n\t\tbar := strings.Repeat("#", data[k]/10)\n\t\tfmt.Printf("  %-12s %s (%d)\\n", k, bar, data[k])\n\t}\n}',
 
-  rust: 'fn main() {\n    let mut fib = vec![0u64, 1];\n    for i in 2..20 {\n        let next = fib[i-1] + fib[i-2];\n        fib.push(next);\n    }\n    println!("First 20 Fibonacci numbers:");\n    for (i, f) in fib.iter().enumerate() {\n        println!("  F({:2}) = {}", i, f);\n    }\n}',
+  rust: 'fn main() {\n    let languages = vec![\n        ("Python", 142), ("JavaScript", 98),\n        ("Go", 67), ("Rust", 45), ("Bash", 31),\n    ];\n\n    println!("RunBox Language Usage");\n    println!("{}", "-".repeat(40));\n\n    let total: u32 = languages.iter().map(|(_, n)| n).sum();\n\n    for (lang, count) in &languages {\n        let pct = (*count as f64 / total as f64) * 100.0;\n        let bar = "#".repeat((*count / 10) as usize);\n        println!("  {:12} {:>5.1}%  {}", lang, pct, bar);\n    }\n    println!("\\n  Total: {} executions", total);\n}',
 
-  ruby: 'def fizzbuzz(n)\n  (1..n).map do |i|\n    if i % 15 == 0 then "FizzBuzz"\n    elsif i % 3 == 0 then "Fizz"\n    elsif i % 5 == 0 then "Buzz"\n    else i.to_s\n    end\n  end\nend\n\nputs "FizzBuzz (1-30):"\nfizzbuzz(30).each_slice(5) { |s| puts s.join("\\t") }',
+  ruby: 'agents = [\n  { name: "scraper", lang: "python", status: :ok },\n  { name: "analyzer", lang: "javascript", status: :ok },\n  { name: "deployer", lang: "bash", status: :error },\n  { name: "validator", lang: "go", status: :ok },\n]\n\nputs "Agent Health Check"\nputs "-" * 40\nagents.each do |a|\n  icon = a[:status] == :ok ? "[OK]" : "[!!]"\n  puts "  #{icon} #{a[:name].ljust(12)} #{a[:lang]}"\nend\nputs "\\n#{agents.count { |a| a[:status] == :ok }}/#{agents.size} agents healthy"',
 
-  c: '#include <stdio.h>\nint main() {\n    printf("Pascal\'s Triangle (8 rows):\\n\\n");\n    int rows = 8;\n    for (int i = 0; i < rows; i++) {\n        for (int s = 0; s < rows - i - 1; s++)\n            printf("  ");\n        int val = 1;\n        for (int j = 0; j <= i; j++) {\n            printf("%4d", val);\n            val = val * (i - j) / (j + 1);\n        }\n        printf("\\n");\n    }\n    return 0;\n}',
+  c: '#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[16];\n    int runs;\n} Agent;\n\nint main() {\n    Agent agents[] = {\n        {"scraper", 142}, {"analyzer", 98},\n        {"deployer", 67}, {"validator", 45},\n    };\n    int n = sizeof(agents) / sizeof(agents[0]);\n    int total = 0;\n\n    printf("Agent Execution Report\\n");\n    printf("%-14s %s\\n", "Agent", "Runs");\n    printf("%.30s\\n", "------------------------------");\n\n    for (int i = 0; i < n; i++) {\n        total += agents[i].runs;\n        printf("  %-12s %d\\n", agents[i].name, agents[i].runs);\n    }\n    printf("\\n  Total: %d executions\\n", total);\n    return 0;\n}',
 
-  cpp: '#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    vector<int> v = {42, 17, 93, 5, 68, 31, 84, 56, 12, 77};\n    cout << "Original: ";\n    for (int x : v) cout << x << " ";\n    cout << endl;\n\n    sort(v.begin(), v.end());\n    cout << "Sorted:   ";\n    for (int x : v) cout << x << " ";\n    cout << endl;\n\n    cout << "Min: " << v.front() << ", Max: " << v.back() << endl;\n    return 0;\n}',
+  cpp: '#include <iostream>\n#include <vector>\n#include <algorithm>\n#include <iomanip>\nusing namespace std;\n\nint main() {\n    vector<pair<string, int>> data = {\n        {"python", 142}, {"javascript", 98},\n        {"go", 67}, {"rust", 45}, {"bash", 31},\n    };\n\n    sort(data.begin(), data.end(),\n        [](auto& a, auto& b) { return a.second > b.second; });\n\n    cout << "Language Rankings" << endl;\n    cout << string(35, \'=\') << endl;\n\n    for (int i = 0; i < data.size(); i++) {\n        cout << "  #" << i+1 << " "\n             << setw(12) << left << data[i].first\n             << data[i].second << " runs" << endl;\n    }\n    return 0;\n}',
 
-  php: '<?php\nfunction factorial($n) {\n    return $n <= 1 ? 1 : $n * factorial($n - 1);\n}\n\necho "Factorials:\\n";\nfor ($i = 1; $i <= 12; $i++) {\n    printf("  %2d! = %s\\n", $i, number_format(factorial($i)));\n}\n?>',
+  php: '<?php\n$tasks = [\n    ["agent" => "scraper", "status" => "done", "ms" => 342],\n    ["agent" => "parser", "status" => "done", "ms" => 128],\n    ["agent" => "validator", "status" => "failed", "ms" => 891],\n    ["agent" => "deployer", "status" => "done", "ms" => 456],\n];\n\necho "Task Execution Log\\n";\necho str_repeat("-", 40) . "\\n";\n\nforeach ($tasks as $t) {\n    $icon = $t["status"] === "done" ? "[OK]" : "[!!]";\n    printf("  %s %-12s %dms\\n", $icon, $t["agent"], $t["ms"]);\n}\n\n$avg = array_sum(array_column($tasks, "ms")) / count($tasks);\nprintf("\\n  Avg execution: %.0fms\\n", $avg);\n?>',
 
-  perl: 'my @words = qw(RunBox Stellar Docker USDC Soroban x402 Agent MCP);\nprint "Word lengths:\\n";\nforeach my $w (sort { length($b) <=> length($a) } @words) {\n    my $bar = "#" x length($w);\n    printf "  %-10s %s (%d)\\n", $w, $bar, length($w);\n}',
+  perl: 'my %stats = (\n    python => 142, javascript => 98,\n    go => 67, rust => 45, bash => 31,\n);\n\nprint "Execution Distribution\\n";\nprint "-" x 40, "\\n";\n\nmy $total = 0;\n$total += $_ for values %stats;\n\nfor my $lang (sort { $stats{$b} <=> $stats{$a} } keys %stats) {\n    my $pct = ($stats{$lang} / $total) * 100;\n    my $bar = "#" x int($stats{$lang} / 10);\n    printf "  %-12s %5.1f%%  %s\\n", $lang, $pct, $bar;\n}\nprintf "\\n  Total: %d executions\\n", $total;',
 
-  lua: 'function collatz(n)\n  local steps = 0\n  io.write(n)\n  while n ~= 1 do\n    if n % 2 == 0 then n = n / 2\n    else n = 3 * n + 1 end\n    io.write(" -> " .. n)\n    steps = steps + 1\n  end\n  print("")\n  return steps\nend\n\nprint("Collatz sequences:")\nfor _, start in ipairs({7, 15, 27}) do\n  io.write("  " .. start .. ": ")\n  local s = collatz(start)\n  print("  Steps: " .. s)\n  print("")\nend',
+  lua: 'local agents = {\n  { name = "data-agent", runs = 142, status = "active" },\n  { name = "code-agent", runs = 98, status = "active" },\n  { name = "test-agent", runs = 67, status = "idle" },\n}\n\nprint("Agent Fleet Status")\nprint(string.rep("-", 45))\n\nlocal total = 0\nfor _, a in ipairs(agents) do\n  local icon = a.status == "active" and "[*]" or "[ ]"\n  print(string.format("  %s %-14s %d runs", icon, a.name, a.runs))\n  total = total + a.runs\nend\n\nprint(string.format("\\n  Fleet total: %d executions", total))\nprint(string.format("  Active: %d/%d agents",\n  #(function() local t={} for _,a in ipairs(agents) do if a.status=="active" then t[#t+1]=a end end return t end)(),\n  #agents))',
 
-  r: 'nums <- rnorm(1000, mean=50, sd=15)\ncat("Generated 1000 random numbers ~ N(50, 15)\\n\\n")\ncat("Mean:  ", round(mean(nums), 2), "\\n")\ncat("SD:    ", round(sd(nums), 2), "\\n")\ncat("Min:   ", round(min(nums), 2), "\\n")\ncat("Max:   ", round(max(nums), 2), "\\n")\ncat("Q1:    ", round(quantile(nums, 0.25), 2), "\\n")\ncat("Median:", round(median(nums), 2), "\\n")\ncat("Q3:    ", round(quantile(nums, 0.75), 2), "\\n")',
+  r: 'agents <- data.frame(\n  name = c("scraper", "analyzer", "deployer", "validator"),\n  runs = c(142, 98, 67, 45),\n  stringsAsFactors = FALSE\n)\n\ncat("Agent Performance Summary\\n")\ncat(strrep("-", 40), "\\n")\n\nfor (i in 1:nrow(agents)) {\n  bar <- paste(rep("#", agents$runs[i] %/% 10), collapse="")\n  cat(sprintf("  %-12s %s (%d)\\n", agents$name[i], bar, agents$runs[i]))\n}\n\ncat(sprintf("\\n  Total: %d executions\\n", sum(agents$runs)))\ncat(sprintf("  Mean:  %.1f per agent\\n", mean(agents$runs)))',
 };
 
 var codeEditor = document.getElementById('codeEditor');
@@ -1313,7 +863,6 @@ function runCode() {
   var language = langSelect.value;
   var code = codeEditor.value;
   if (!code.trim()) return;
-
   outputArea.innerHTML = '';
   runMeta.innerHTML = '';
   runBtn.disabled = true;
@@ -1323,7 +872,6 @@ function runCode() {
     var url = new URL('/api/demo/run-stream', window.location.origin);
     url.searchParams.set('language', language);
     url.searchParams.set('code', code);
-
     var evtSource = new EventSource(url.toString());
 
     evtSource.onmessage = function(event) {
@@ -1339,7 +887,6 @@ function runCode() {
         resetRunBtn();
       }
     };
-
     evtSource.onerror = function() {
       evtSource.close();
       outputArea.innerHTML += '<span class="stderr">Connection lost</span>';
@@ -1376,7 +923,6 @@ document.getElementById('aiInput').addEventListener('keydown', function(e) {
 function runAI() {
   var prompt = document.getElementById('aiInput').value.trim();
   if (!prompt) return;
-
   var aiBtn = document.getElementById('aiBtn');
   var aiThinking = document.getElementById('aiThinking');
   var aiResult = document.getElementById('aiResult');
@@ -1394,50 +940,46 @@ function runAI() {
   })
   .then(function(resp) { return resp.json().then(function(data) { return { ok: resp.ok, data: data }; }); })
   .then(function(result) {
-    var data = result.data;
     aiThinking.classList.remove('visible');
-
     if (!result.ok) {
       aiError.classList.add('visible');
-      document.getElementById('aiErrorMsg').textContent = data.error || 'Something went wrong. Try the Playground tab instead.';
+      document.getElementById('aiErrorMsg').textContent = result.data.error || 'Something went wrong. Try the Playground tab.';
       aiBtn.disabled = false;
       return;
     }
-
     aiResult.classList.add('visible');
-
-    document.getElementById('aiCodeDisplay').textContent = data.code || 'No code generated';
-    document.getElementById('aiLangTag').textContent = data.language || '';
+    document.getElementById('aiCodeDisplay').textContent = result.data.code || 'No code generated';
+    document.getElementById('aiLangTag').textContent = result.data.language || '';
 
     var output = '';
-    if (data.stdout) output += escapeHtml(data.stdout);
-    if (data.stderr) output += '<span class="stderr">' + escapeHtml(data.stderr) + '</span>';
-    if (data.error) output += '<span class="stderr">' + escapeHtml(data.error) + '</span>';
-    if (!output) output = '<span class="placeholder">No output</span>';
+    if (result.data.stdout) output += escapeHtml(result.data.stdout);
+    if (result.data.stderr) output += '<span class="stderr">' + escapeHtml(result.data.stderr) + '</span>';
+    if (result.data.error) output += '<span class="stderr">' + escapeHtml(result.data.error) + '</span>';
+    if (!output) output = 'No output';
     document.getElementById('aiOutputDisplay').innerHTML = output;
 
     var meta = '';
-    if (data.executionMs != null) meta += '<span style="color:var(--green)">' + data.executionMs + 'ms</span>';
-    if (data.exitCode != null) {
-      var cls = data.exitCode === 0 ? 'color:var(--green)' : 'color:var(--red)';
-      meta += '<span style="' + cls + '">exit ' + data.exitCode + '</span>';
+    if (result.data.executionMs != null) meta += '<span style="color:var(--green)">' + result.data.executionMs + 'ms</span>';
+    if (result.data.exitCode != null) {
+      var c = result.data.exitCode === 0 ? 'color:var(--green)' : 'color:var(--red)';
+      meta += '<span style="' + c + '">exit ' + result.data.exitCode + '</span>';
     }
-    if (data.language) meta += '<span class="lang-tag">' + data.language + '</span>';
+    if (result.data.language) meta += '<span class="lang-tag">' + result.data.language + '</span>';
     document.getElementById('aiMeta').innerHTML = meta;
     aiBtn.disabled = false;
   })
   .catch(function(err) {
     aiThinking.classList.remove('visible');
     aiError.classList.add('visible');
-    document.getElementById('aiErrorMsg').textContent = err.message || 'Connection failed. Try the Playground tab instead.';
+    document.getElementById('aiErrorMsg').textContent = err.message || 'Connection failed.';
     aiBtn.disabled = false;
   });
 }
 
 function escapeHtml(str) {
-  var div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  var d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
 }
 </script>
 
