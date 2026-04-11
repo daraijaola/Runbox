@@ -59,7 +59,7 @@ router.post("/v1/messages", async (req: Request, res: Response) => {
 
 // ── OpenAI-compatible proxy (/v1/chat/completions) ────────────────────────────
 // Translates OpenAI format ↔ Anthropic format so OpenClaw (which uses OpenAI
-// protocol) can use Claude via the Replit Anthropic integration.
+// protocol) can use Claude via the Anthropic API proxy.
 router.post("/v1/chat/completions", async (req: Request, res: Response) => {
   if (!authOk(req)) {
     res.status(401).json({ error: "Unauthorized" });
