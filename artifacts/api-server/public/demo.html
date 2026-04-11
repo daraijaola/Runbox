@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RunBox — AI Code Execution Playground</title>
 <meta name="description" content="Pay-per-use isolated code execution for AI agents via x402 + MPP on Stellar. Try it live.">
+<meta name="theme-color" content="#0a0a0a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='7' fill='%236366f1'/%3E%3Ctext x='7' y='23' font-family='Inter,sans-serif' font-weight='700' font-size='18' fill='white'%3ER%3C/text%3E%3C/svg%3E">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -23,25 +25,31 @@
   --surface-hover: #161616;
   --green: #27c93f;
   --red: #ff5f56;
+  --yellow: #ffbd2e;
   --font-sans: 'Inter', -apple-system, sans-serif;
   --font-mono: 'DM Mono', 'SF Mono', monospace;
   --radius: 8px;
   --radius-lg: 12px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
 }
 
-html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
-body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-sans);
-  line-height: 1.6;
-  min-height: 100vh;
-}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.6; min-height: 100vh; }
 
 a { color: inherit; text-decoration: none; transition: color 0.2s; }
-a:hover { color: var(--fg); }
 
+::selection { background: var(--accent); color: var(--bg); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ─── NAV ─── */
 .nav {
   position: sticky;
   top: 0;
@@ -49,7 +57,7 @@ a:hover { color: var(--fg); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 64px;
+  padding: var(--space-md) var(--space-3xl);
   background: rgba(30, 30, 30, 0.35);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
@@ -60,81 +68,140 @@ a:hover { color: var(--fg); }
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-sm);
+  text-decoration: none;
+  color: var(--fg);
   font-weight: 600;
   font-size: 16px;
   letter-spacing: -0.01em;
-  color: var(--fg);
-  text-decoration: none;
 }
 
 .nav-logo-icon {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   background: var(--accent);
-  border-radius: 7px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: white;
+  flex-shrink: 0;
 }
 
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: var(--space-xl);
 }
 
 .nav-links a {
   color: var(--fg-muted);
+  text-decoration: none;
   font-size: 14px;
   font-weight: 500;
+  transition: color 0.2s;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .nav-links a:hover { color: var(--fg); }
-.nav-links a svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-links a svg { width: 15px; height: 15px; flex-shrink: 0; }
 
+.nav-mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--fg);
+  cursor: pointer;
+  padding: var(--space-sm);
+}
+
+/* ─── HERO ─── */
 .hero {
   max-width: 900px;
   margin: 0 auto;
-  padding: 64px 64px 48px;
+  padding: var(--space-3xl) var(--space-3xl) var(--space-2xl);
   text-align: center;
 }
 
-.hero-label {
+.section-label {
   display: inline-block;
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
   color: #ffffff;
   background: var(--accent);
-  padding: 4px 16px;
+  padding: var(--space-xs) var(--space-md);
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 .hero h1 {
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: clamp(36px, 6vw, 64px);
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.035em;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-lg);
   color: var(--fg);
 }
 
-.hero p {
+.hero-desc {
   font-size: 17px;
   color: var(--fg-muted);
   line-height: 1.7;
-  max-width: 600px;
-  margin: 0 auto 32px;
+  max-width: 640px;
+  margin: 0 auto var(--space-xl);
   text-wrap: balance;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2xl);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 14px var(--space-lg);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-sans);
+}
+
+.btn-primary {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
 }
 
 .hero-features {
@@ -145,12 +212,14 @@ a:hover { color: var(--fg); }
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  margin-bottom: 48px;
 }
 
 .hero-feature {
   background: var(--bg);
-  padding: 20px 16px;
+  padding: var(--space-lg) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
   text-align: left;
 }
 
@@ -160,7 +229,6 @@ a:hover { color: var(--fg); }
   color: var(--fg-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 4px;
 }
 
 .hero-feature-value {
@@ -169,11 +237,50 @@ a:hover { color: var(--fg); }
   color: var(--fg);
 }
 
+.hero-feature-logos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.hero-feature-logos svg {
+  opacity: 0.85;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.hero-feature-logos svg:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* ─── MAIN TABS ─── */
+.main-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--space-3xl) var(--space-3xl);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-2xl);
+}
+
+.section-header {
+  margin-bottom: var(--space-xl);
+  text-align: center;
+}
+
+.section-title {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--fg);
+}
+
 .tabs {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-lg);
 }
 
 .tab {
@@ -202,38 +309,60 @@ a:hover { color: var(--fg); }
   color: #ffffff;
 }
 
-.main-content {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 64px 64px;
-}
-
 .panel { display: none; }
 .panel.active { display: block; }
 
-.playground {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--border);
+/* ─── PLAYGROUND ─── */
+.playground-wrap {
+  position: relative;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  background: var(--surface);
 }
 
-.pane {
-  background: var(--bg);
+.terminal-dots {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
 }
 
-.pane-header {
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+.terminal-dot:nth-child(1) { background: #ff5f56; }
+.terminal-dot:nth-child(2) { background: #ffbd2e; }
+.terminal-dot:nth-child(3) { background: #27c93f; }
+
+.playground-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
+  padding: 10px 20px 10px 76px;
+  background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid var(--border);
 }
 
-.pane-title {
+.playground-bar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.playground-bar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.bar-label {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--fg-muted);
@@ -243,7 +372,7 @@ a:hover { color: var(--fg); }
 
 .lang-select {
   appearance: none;
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--fg);
@@ -261,36 +390,11 @@ a:hover { color: var(--fg); }
 .lang-select:hover { border-color: var(--border-hover); }
 .lang-select:focus { outline: none; border-color: var(--accent); }
 
-.code-editor {
-  width: 100%;
-  height: 340px;
-  padding: 20px;
-  background: transparent;
-  border: none;
-  color: var(--fg);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-  resize: none;
-  tab-size: 2;
-}
-
-.code-editor:focus { outline: none; }
-.code-editor::placeholder { color: #333; }
-
-.pane-footer {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 20px;
-  border-top: 1px solid var(--border);
-}
-
 .run-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
+  gap: 6px;
+  padding: 6px 18px;
   background: var(--fg);
   color: var(--bg);
   border: none;
@@ -310,7 +414,73 @@ a:hover { color: var(--fg); }
 
 .run-btn:active { transform: translateY(0); }
 .run-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
-.run-btn svg { width: 12px; height: 12px; }
+.run-btn svg { width: 10px; height: 10px; }
+
+.playground-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.pane {
+  min-height: 0;
+}
+
+.pane + .pane {
+  border-left: 1px solid var(--border);
+}
+
+.pane-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.code-editor {
+  width: 100%;
+  height: 320px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  resize: none;
+  tab-size: 2;
+}
+
+.code-editor:focus { outline: none; }
+.code-editor::placeholder { color: #2a2a2a; }
+
+.output-area {
+  width: 100%;
+  height: 320px;
+  padding: 16px 20px;
+  background: transparent;
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.output-area .stderr { color: var(--red); }
+.output-area .placeholder { color: #2a2a2a; }
+
+.playground-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
 
 .run-meta {
   font-family: var(--font-mono);
@@ -332,44 +502,28 @@ a:hover { color: var(--fg); }
   margin-left: auto;
 }
 
-.char-count.warn { color: #ffbd2e; }
+.char-count.warn { color: var(--yellow); }
 .char-count.limit { color: var(--red); }
 
 .kbd {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: #333;
-  background: var(--surface);
+  color: #444;
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 2px 6px;
 }
 
-.output-area {
-  width: 100%;
-  height: 340px;
-  padding: 20px;
-  background: transparent;
-  color: var(--green);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.output-area .stderr { color: var(--red); }
-.output-area .placeholder { color: #333; }
-
-.ai-panel { padding-bottom: 32px; }
+/* ─── AI AGENT ─── */
+.ai-panel { padding-top: 8px; }
 
 .ai-suggestions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 .ai-suggestion {
@@ -393,7 +547,7 @@ a:hover { color: var(--fg); }
 .ai-input-row {
   display: flex;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-xl);
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
@@ -417,7 +571,7 @@ a:hover { color: var(--fg); }
 .ai-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-sm);
   padding: 14px 28px;
   background: var(--fg);
   color: var(--bg);
@@ -439,10 +593,10 @@ a:hover { color: var(--fg); }
 
 .ai-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
 
-.ai-thinking { display: none; text-align: center; padding: 64px 0; }
-.ai-thinking.visible { display: block; }
+.ai-status { display: none; text-align: center; padding: 48px 0; }
+.ai-status.visible { display: block; }
 
-.ai-thinking .spinner {
+.ai-status .spinner {
   width: 24px;
   height: 24px;
   border: 2px solid var(--border);
@@ -454,52 +608,133 @@ a:hover { color: var(--fg); }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.ai-thinking p {
+.ai-status p {
   font-size: 14px;
   color: var(--fg-muted);
 }
 
-.ai-result { display: none; }
+.ai-error-box {
+  display: none;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
 
-.ai-result.visible {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--border);
+.ai-error-box.visible { display: block; }
+
+.ai-error-box .error-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 95, 86, 0.1);
+  border: 1px solid rgba(255, 95, 86, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-md);
+  color: var(--red);
+  font-size: 18px;
+}
+
+.ai-error-box h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: var(--space-sm);
+}
+
+.ai-error-box p {
+  font-size: 14px;
+  color: var(--fg-muted);
+  line-height: 1.6;
+  margin-bottom: var(--space-md);
+}
+
+.ai-error-box .switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-error-box .switch-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+.ai-result-wrap { display: none; }
+
+.ai-result-wrap.visible {
+  display: block;
+}
+
+.ai-result {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  background: var(--surface);
 }
 
-.ai-result .pane { min-height: 0; }
+.ai-result .terminal-dots {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+}
 
-.ai-code-display {
-  padding: 20px;
+.ai-result-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 10px 76px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.ai-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.ai-result-grid .pane + .pane { border-left: 1px solid var(--border); }
+
+.ai-code-display, .ai-output-display {
+  padding: 16px 20px;
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.7;
-  color: var(--fg);
   white-space: pre-wrap;
   overflow-y: auto;
-  max-height: 300px;
+  max-height: 320px;
+  min-height: 120px;
 }
 
-.ai-output-display {
-  padding: 20px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--green);
-  white-space: pre-wrap;
-  overflow-y: auto;
-  max-height: 300px;
-}
-
+.ai-code-display { color: var(--fg); }
+.ai-output-display { color: var(--green); }
 .ai-output-display .stderr { color: var(--red); }
+
+.ai-result-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
 
 .ai-meta {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
 }
 
@@ -521,6 +756,7 @@ a:hover { color: var(--fg); }
   letter-spacing: 0.05em;
 }
 
+/* ─── FOOTER ─── */
 .footer {
   border-top: 1px solid var(--border);
   background: var(--surface);
@@ -529,52 +765,229 @@ a:hover { color: var(--fg); }
 .footer-content {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 48px 64px 32px;
+  padding: var(--space-2xl) var(--space-3xl) var(--space-xl);
+}
+
+.footer-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--fg);
+}
+
+.footer-tagline {
+  font-size: 13px;
+  color: var(--fg-muted);
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+.footer-nav {
+  display: flex;
+  gap: var(--space-3xl);
+}
+
+.footer-col h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: var(--space-md);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+}
+
+.footer-col a {
+  display: block;
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin-bottom: var(--space-sm);
+  transition: color 0.2s;
+}
+
+.footer-col a:hover { color: var(--fg); }
+
+.footer-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border);
 }
 
 .footer-badges {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .footer-badge {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   color: var(--fg-muted);
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 4px 10px;
+  padding: 3px 8px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.footer-links {
-  display: flex;
-  gap: 24px;
-}
-
-.footer-links a {
-  font-size: 13px;
+.footer-copy {
+  font-size: 12px;
   color: var(--fg-muted);
-  transition: color 0.2s;
 }
 
-.footer-links a:hover { color: var(--fg); }
-
+/* ─── SPINNER ─── */
 .spinner-sm {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border: 2px solid rgba(0,0,0,0.2);
   border-top-color: var(--bg);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
   display: inline-block;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero .section-label { animation: fadeInUp 0.6s ease-out; }
+.hero h1 { animation: fadeInUp 0.6s ease-out 0.1s backwards; }
+.hero-desc { animation: fadeInUp 0.6s ease-out 0.2s backwards; }
+.hero-buttons { animation: fadeInUp 0.6s ease-out 0.3s backwards; }
+.hero-features { animation: fadeInUp 0.6s ease-out 0.4s backwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── RESPONSIVE: TABLET ─── */
+@media (max-width: 900px) {
+  .nav { padding: var(--space-md) var(--space-lg); }
+  .hero { padding: var(--space-2xl) var(--space-lg); }
+  .main-content { padding: 0 var(--space-lg) var(--space-2xl); padding-top: var(--space-xl); }
+  .footer-content { padding: var(--space-xl) var(--space-lg); }
+
+  .hero-features { grid-template-columns: repeat(2, 1fr); }
+
+  .playground-grid { grid-template-columns: 1fr; }
+  .pane + .pane { border-left: none; border-top: 1px solid var(--border); }
+
+  .ai-result-grid { grid-template-columns: 1fr; }
+  .ai-result-grid .pane + .pane { border-left: none; border-top: 1px solid var(--border); }
+
+  .footer-main { flex-direction: column; gap: var(--space-xl); }
+  .footer-nav { gap: var(--space-xl); }
+}
+
+/* ─── RESPONSIVE: MOBILE ─── */
+@media (max-width: 768px) {
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(10, 10, 10, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    flex-direction: column;
+    padding: var(--space-sm) var(--space-lg);
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+  }
+
+  .nav-links.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .nav-links a {
+    padding: 14px 0;
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+
+  .nav-links a:last-child { border-bottom: none; }
+
+  .nav-mobile-toggle { display: block; }
+
+  .hero h1 { font-size: 32px; }
+  .hero-desc { font-size: 15px; }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn { justify-content: center; width: 100%; }
+
+  .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; justify-content: flex-start; scrollbar-width: none; padding: 0 4px; }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .ai-input-row { flex-direction: column; }
+  .ai-btn { width: 100%; justify-content: center; }
+  .ai-suggestions { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; padding-bottom: 4px; }
+  .ai-suggestions::-webkit-scrollbar { display: none; }
+
+  .playground-bar { padding: 10px 16px 10px 16px; flex-wrap: wrap; gap: 8px; }
+  .terminal-dots { display: none; }
+  .playground-bar-left, .playground-bar-right { width: 100%; }
+  .playground-bar-right { justify-content: space-between; }
+
+  .code-editor, .output-area { height: 240px; padding: 12px 16px; font-size: 12px; }
+  .ai-code-display, .ai-output-display { max-height: 240px; padding: 12px 16px; font-size: 12px; }
+
+  .footer-nav { flex-wrap: wrap; gap: var(--space-lg); }
+  .footer-bottom { flex-direction: column; gap: var(--space-md); text-align: center; }
+  .footer-badges { justify-content: center; }
+}
+
+/* ─── RESPONSIVE: SMALL MOBILE ─── */
+@media (max-width: 480px) {
+  .nav { padding: var(--space-sm) var(--space-md); }
+  .hero { padding: var(--space-lg) 20px; }
+  .main-content { padding: 0 20px var(--space-xl); padding-top: var(--space-lg); }
+  .footer-content { padding: var(--space-lg) 20px var(--space-md); }
+
+  .hero h1 { font-size: 26px; }
+  .hero-desc { font-size: 14px; margin-bottom: var(--space-md); }
+  .section-label { font-size: 11px; }
+  .hero-features { grid-template-columns: 1fr 1fr; }
+
+  .tab { font-size: 12px; padding: 6px 16px; }
+
+  .code-editor, .output-area { height: 200px; }
 }
 </style>
 </head>
@@ -585,31 +998,60 @@ a:hover { color: var(--fg); }
     <div class="nav-logo-icon">R</div>
     <span>RunBox</span>
   </a>
-  <div class="nav-links">
-    <a href="https://github.com/daraijaola/Runbox" target="_blank">
+  <div class="nav-links" id="navLinks">
+    <a href="https://github.com/daraijaola/Runbox" target="_blank" rel="noopener">
       <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       GitHub
     </a>
-    <a href="https://www.npmjs.com/package/runbox-client" target="_blank">
+    <a href="https://www.npmjs.com/package/runbox-client" target="_blank" rel="noopener">
       <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 0v16h16V0H0zm13 13H8V5h2.5v5.5H13V3H3v10z"/></svg>
       npm
     </a>
-    <a href="https://lab.stellar.org/r/testnet/contract/CCXVU6NNDBJ23QSG6OGKUMUEXNLVOSJ4SZOJK3AAL2NTHBCAED66SCG3" target="_blank">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0L1 4v8l7 4 7-4V4L8 0zm5 11l-5 3-5-3V5l5-3 5 3v6z"/></svg>
+    <a href="https://www.npmjs.com/package/runbox-mcp" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.2a5.8 5.8 0 110 11.6A5.8 5.8 0 018 2.2zM7 5v6l5-3z"/></svg>
+      MCP
+    </a>
+    <a href="https://lab.stellar.org/r/testnet/contract/CCXVU6NNDBJ23QSG6OGKUMUEXNLVOSJ4SZOJK3AAL2NTHBCAED66SCG3" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.1 2C6.5 2 2 6.5 2 12.1s4.5 10.1 10.1 10.1 10.1-4.5 10.1-10.1S17.7 2 12.1 2zm5.6 14.3l-1.3.7-8.8-4.8 1.3-.7 8.8 4.8zm0-2.7l-1.3.7L7.6 9.5V7.8l10.1 5.8zm-11.4.7L5 13.6l8.8-4.8 1.3.7-8.8 4.8zm0-2.7L5 10.9l8.8-4.8 1.3.7-8.8 4.8z"/></svg>
       Soroban
     </a>
+    <a href="https://dorahacks.io/hackathon/stellar-agents-x402-stripe-mpp" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0L1 4v8l7 4 7-4V4L8 0zm5 11l-5 3-5-3V5l5-3 5 3v6z"/></svg>
+      Hackathon
+    </a>
   </div>
+  <button class="nav-mobile-toggle" aria-label="Toggle menu" onclick="document.getElementById('navLinks').classList.toggle('active')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M3 12h18M3 6h18M3 18h18"/>
+    </svg>
+  </button>
 </nav>
 
 <section class="hero">
-  <span class="hero-label">Live Demo</span>
-  <h1>Try RunBox</h1>
-  <p>Execute code in isolated Docker containers, powered by x402 micropayments on Stellar. Pick a language and run it.</p>
+  <span class="section-label">Live Demo</span>
+
+  <h1>Isolated Code Execution<br>for AI Agents</h1>
+
+  <p class="hero-desc">Pay-per-use Docker sandboxes with x402 micropayments on Stellar. Real execution, real containers, real output. Try it live.</p>
+
+  <div class="hero-buttons">
+    <a href="https://github.com/daraijaola/Runbox" target="_blank" rel="noopener" class="btn btn-primary">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      View on GitHub
+    </a>
+    <a href="https://github.com/daraijaola/Runbox/releases/tag/v1.0.0" target="_blank" rel="noopener" class="btn btn-secondary">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M2.5 2a.5.5 0 00-.5.5v11a.5.5 0 00.5.5h11a.5.5 0 00.5-.5v-11a.5.5 0 00-.5-.5h-11zM8 4.5a.75.75 0 01.75.75v2h2a.75.75 0 010 1.5h-2v2a.75.75 0 01-1.5 0v-2h-2a.75.75 0 010-1.5h2v-2A.75.75 0 018 4.5z"/></svg>
+      v1.0.0 Release
+    </a>
+  </div>
 
   <div class="hero-features">
     <div class="hero-feature">
       <div class="hero-feature-label">Protocol</div>
-      <div class="hero-feature-value">x402 + MPP</div>
+      <div class="hero-feature-logos">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#e8e8e8"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.2L19.5 8 12 11.8 4.5 8 12 4.2z"/></svg>
+        <span class="hero-feature-value">x402 + MPP</span>
+      </div>
     </div>
     <div class="hero-feature">
       <div class="hero-feature-label">Languages</div>
@@ -617,26 +1059,42 @@ a:hover { color: var(--fg); }
     </div>
     <div class="hero-feature">
       <div class="hero-feature-label">Settlement</div>
-      <div class="hero-feature-value">Stellar USDC</div>
+      <div class="hero-feature-logos">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#e8e8e8"><path d="M12.1 2C6.5 2 2 6.5 2 12.1s4.5 10.1 10.1 10.1 10.1-4.5 10.1-10.1S17.7 2 12.1 2zm5.6 14.3l-1.3.7-8.8-4.8 1.3-.7 8.8 4.8z"/></svg>
+        <span class="hero-feature-value">Stellar USDC</span>
+      </div>
     </div>
     <div class="hero-feature">
       <div class="hero-feature-label">Isolation</div>
-      <div class="hero-feature-value">Docker Sandbox</div>
+      <div class="hero-feature-logos">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#2496ED"><path d="M13.98 11.08h2.12v1.92h-2.12zm-2.59 0H13.5v1.92h-2.11zm-2.6 0h2.12v1.92H8.79zm-2.6 0h2.12v1.92H6.19zm2.6-2.39h2.12v1.92H8.79zm2.6 0H13.5v1.92h-2.11zm2.59 0h2.12v1.92h-2.12zm-2.59-2.39H13.5v1.92h-2.11zm2.59 0h2.12v1.92h-2.12zM22 13.5c-.4-.73-1.2-1.2-1.2-1.2s.1-.62-.2-1.35c-.3-.73-.9-1.01-.9-1.01s-.3-.53-.8-.87c0 0 .1-.3-.1-.7-.2-.4-.8-.7-.8-.7a5.3 5.3 0 00-1.1-.3c-.7-.1-1.3.1-1.3.1-1.05-.5-2.2-.5-2.2-.5H12c-3.24 0-5.87 1.77-7.25 4.5C3.14 14.39 3 17 3 17c0 .5.04 1 .04 1C3.04 20 4 21 4 21h16s1-.78 1.6-3c.3-1.1.4-2.8.4-2.8s0-.8-.03-1.7z"/></svg>
+        <span class="hero-feature-value">Docker</span>
+      </div>
     </div>
   </div>
 </section>
 
 <div class="main-content">
+  <div class="section-header">
+    <span class="section-label">Interactive</span>
+    <h2 class="section-title">Execute code in real<br>Docker containers</h2>
+  </div>
+
   <div class="tabs">
     <button class="tab active" data-tab="playground">Playground</button>
     <button class="tab" data-tab="ai">AI Agent</button>
   </div>
 
   <div class="panel active" id="panel-playground">
-    <div class="playground">
-      <div class="pane">
-        <div class="pane-header">
-          <span class="pane-title">Code</span>
+    <div class="playground-wrap">
+      <div class="terminal-dots">
+        <span class="terminal-dot"></span>
+        <span class="terminal-dot"></span>
+        <span class="terminal-dot"></span>
+      </div>
+      <div class="playground-bar">
+        <div class="playground-bar-left">
+          <span class="bar-label">Language</span>
           <select class="lang-select" id="langSelect">
             <option value="python">Python</option>
             <option value="javascript">JavaScript</option>
@@ -652,22 +1110,27 @@ a:hover { color: var(--fg); }
             <option value="r">R</option>
           </select>
         </div>
-        <textarea class="code-editor" id="codeEditor" spellcheck="false" placeholder="Write your code here..."></textarea>
-        <div class="pane-footer">
+        <div class="playground-bar-right">
+          <span class="kbd">Ctrl+Enter</span>
           <button class="run-btn" id="runBtn" onclick="runCode()">
             <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
             Run
           </button>
-          <span class="kbd">Ctrl+Enter</span>
-          <div class="run-meta" id="runMeta"></div>
-          <span class="char-count" id="charCount">0 / 1000</span>
         </div>
       </div>
-      <div class="pane">
-        <div class="pane-header">
-          <span class="pane-title">Output</span>
+      <div class="playground-grid">
+        <div class="pane">
+          <div class="pane-label">Code</div>
+          <textarea class="code-editor" id="codeEditor" spellcheck="false" placeholder="Write your code here..."></textarea>
         </div>
-        <div class="output-area" id="outputArea"><span class="placeholder">Output will appear here...</span></div>
+        <div class="pane">
+          <div class="pane-label">Output</div>
+          <div class="output-area" id="outputArea"><span class="placeholder">Output will appear here...</span></div>
+        </div>
+      </div>
+      <div class="playground-footer">
+        <div class="run-meta" id="runMeta"></div>
+        <span class="char-count" id="charCount">0 / 1000</span>
       </div>
     </div>
   </div>
@@ -679,33 +1142,54 @@ a:hover { color: var(--fg); }
         <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Generate a random maze</button>
         <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Calculate pi to 50 digits</button>
         <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Sort 10 random numbers with quicksort</button>
-        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Draw a Sierpinski triangle in ASCII</button>
+        <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Sierpinski triangle in ASCII</button>
       </div>
       <div class="ai-input-row">
         <input class="ai-input" id="aiInput" type="text" placeholder="Ask the AI to compute something..." maxlength="500">
-        <button class="ai-btn" id="aiBtn" onclick="runAI()">Ask AI</button>
+        <button class="ai-btn" id="aiBtn" onclick="runAI()">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm1 10H7V7h2v4zm0-5H7V4h2v2z"/></svg>
+          Ask AI
+        </button>
       </div>
 
-      <div class="ai-thinking" id="aiThinking">
+      <div class="ai-status" id="aiThinking">
         <div class="spinner"></div>
         <p>Claude is writing and executing code...</p>
       </div>
 
-      <div class="ai-result" id="aiResult">
-        <div class="pane">
-          <div class="pane-header">
-            <span class="pane-title">Generated Code</span>
-            <span class="lang-tag" id="aiLangTag"></span>
-          </div>
-          <div class="ai-code-display" id="aiCodeDisplay"></div>
-        </div>
-        <div class="pane">
-          <div class="pane-header">
-            <span class="pane-title">Execution Result</span>
-          </div>
-          <div class="ai-output-display" id="aiOutputDisplay"></div>
-          <div class="pane-footer">
+      <div class="ai-error-box" id="aiError">
+        <div class="error-icon">!</div>
+        <h3>AI Temporarily Unavailable</h3>
+        <p id="aiErrorMsg">The AI service is temporarily unavailable. Try the Playground tab instead — you can write and execute code in 12 languages with real Docker containers.</p>
+        <button class="switch-btn" onclick="switchToPlayground()">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M4 2l10 6-10 6V2z"/></svg>
+          Switch to Playground
+        </button>
+      </div>
+
+      <div class="ai-result-wrap" id="aiResult">
+        <div class="ai-result">
+          <div class="ai-result-bar" style="position:relative">
+            <div class="terminal-dots">
+              <span class="terminal-dot"></span>
+              <span class="terminal-dot"></span>
+              <span class="terminal-dot"></span>
+            </div>
+            <span class="bar-label" style="margin-left:60px">AI Result</span>
             <div class="ai-meta" id="aiMeta"></div>
+          </div>
+          <div class="ai-result-grid">
+            <div class="pane">
+              <div class="pane-label">
+                Generated Code
+                <span class="lang-tag" id="aiLangTag" style="margin-left:8px"></span>
+              </div>
+              <div class="ai-code-display" id="aiCodeDisplay"></div>
+            </div>
+            <div class="pane">
+              <div class="pane-label">Execution Result</div>
+              <div class="ai-output-display" id="aiOutputDisplay"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -715,20 +1199,42 @@ a:hover { color: var(--fg); }
 
 <footer class="footer">
   <div class="footer-content">
-    <div class="footer-badges">
-      <span class="footer-badge">x402</span>
-      <span class="footer-badge">Stellar</span>
-      <span class="footer-badge">Soroban</span>
-      <span class="footer-badge">Docker</span>
-      <span class="footer-badge">MCP</span>
-      <span class="footer-badge">MPP</span>
-      <span class="footer-badge">USDC</span>
+    <div class="footer-main">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="nav-logo-icon" style="width:22px;height:22px;font-size:11px;border-radius:5px">R</div>
+          RunBox
+        </div>
+        <p class="footer-tagline">Pay-per-use isolated code execution for AI agents. Built on Stellar, powered by x402.</p>
+      </div>
+      <div class="footer-nav">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="https://github.com/daraijaola/Runbox" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/daraijaola/Runbox/releases/tag/v1.0.0" target="_blank" rel="noopener">Release v1.0.0</a>
+          <a href="https://www.npmjs.com/package/runbox-client" target="_blank" rel="noopener">npm SDK</a>
+          <a href="https://www.npmjs.com/package/runbox-mcp" target="_blank" rel="noopener">MCP Server</a>
+        </div>
+        <div class="footer-col">
+          <h4>Network</h4>
+          <a href="https://lab.stellar.org/r/testnet/contract/CCXVU6NNDBJ23QSG6OGKUMUEXNLVOSJ4SZOJK3AAL2NTHBCAED66SCG3" target="_blank" rel="noopener">Soroban Contract</a>
+          <a href="https://dorahacks.io/hackathon/stellar-agents-x402-stripe-mpp" target="_blank" rel="noopener">Stellar Hacks</a>
+          <a href="https://stellar.org" target="_blank" rel="noopener">Stellar.org</a>
+        </div>
+      </div>
     </div>
-    <div class="footer-links">
-      <a href="https://github.com/daraijaola/Runbox">GitHub</a>
-      <a href="https://www.npmjs.com/package/runbox-client">npm</a>
-      <a href="https://www.npmjs.com/package/runbox-mcp">MCP</a>
-      <a href="https://dorahacks.io/hackathon/stellar-agents-x402-stripe-mpp">Stellar Hacks</a>
+    <div class="footer-bottom">
+      <div class="footer-badges">
+        <span class="footer-badge">x402</span>
+        <span class="footer-badge">MPP</span>
+        <span class="footer-badge">Stellar</span>
+        <span class="footer-badge">Soroban</span>
+        <span class="footer-badge">USDC</span>
+        <span class="footer-badge">Docker</span>
+        <span class="footer-badge">MCP</span>
+        <span class="footer-badge">OpenClaw</span>
+      </div>
+      <span class="footer-copy">MIT License</span>
     </div>
   </div>
 </footer>
@@ -847,12 +1353,20 @@ function runCode() {
 
 function resetRunBtn() {
   runBtn.disabled = false;
-  runBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M4 2l10 6-10 6V2z"/></svg> Run';
+  runBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M4 2l10 6-10 6V2z"/></svg> Run';
 }
 
 function setPrompt(text) {
   document.getElementById('aiInput').value = text;
   document.getElementById('aiInput').focus();
+}
+
+function switchToPlayground() {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelector('[data-tab="playground"]').classList.add('active');
+  document.getElementById('panel-playground').classList.add('active');
+  window.scrollTo({ top: document.querySelector('.tabs').offsetTop - 80, behavior: 'smooth' });
 }
 
 document.getElementById('aiInput').addEventListener('keydown', function(e) {
@@ -866,10 +1380,12 @@ function runAI() {
   var aiBtn = document.getElementById('aiBtn');
   var aiThinking = document.getElementById('aiThinking');
   var aiResult = document.getElementById('aiResult');
+  var aiError = document.getElementById('aiError');
 
   aiBtn.disabled = true;
   aiThinking.classList.add('visible');
   aiResult.classList.remove('visible');
+  aiError.classList.remove('visible');
 
   fetch('/api/demo/ai', {
     method: 'POST',
@@ -880,16 +1396,15 @@ function runAI() {
   .then(function(result) {
     var data = result.data;
     aiThinking.classList.remove('visible');
-    aiResult.classList.add('visible');
 
     if (!result.ok) {
-      document.getElementById('aiCodeDisplay').textContent = '';
-      document.getElementById('aiOutputDisplay').innerHTML = '<span class="stderr">' + escapeHtml(data.error || 'Request failed') + '</span>';
-      document.getElementById('aiLangTag').textContent = '';
-      document.getElementById('aiMeta').innerHTML = '';
+      aiError.classList.add('visible');
+      document.getElementById('aiErrorMsg').textContent = data.error || 'Something went wrong. Try the Playground tab instead.';
       aiBtn.disabled = false;
       return;
     }
+
+    aiResult.classList.add('visible');
 
     document.getElementById('aiCodeDisplay').textContent = data.code || 'No code generated';
     document.getElementById('aiLangTag').textContent = data.language || '';
@@ -902,10 +1417,10 @@ function runAI() {
     document.getElementById('aiOutputDisplay').innerHTML = output;
 
     var meta = '';
-    if (data.executionMs != null) meta += '<span class="time">' + data.executionMs + 'ms</span>';
+    if (data.executionMs != null) meta += '<span style="color:var(--green)">' + data.executionMs + 'ms</span>';
     if (data.exitCode != null) {
-      var cls = data.exitCode === 0 ? 'exit-ok' : 'exit-err';
-      meta += '<span class="' + cls + '">exit ' + data.exitCode + '</span>';
+      var cls = data.exitCode === 0 ? 'color:var(--green)' : 'color:var(--red)';
+      meta += '<span style="' + cls + '">exit ' + data.exitCode + '</span>';
     }
     if (data.language) meta += '<span class="lang-tag">' + data.language + '</span>';
     document.getElementById('aiMeta').innerHTML = meta;
@@ -913,9 +1428,8 @@ function runAI() {
   })
   .catch(function(err) {
     aiThinking.classList.remove('visible');
-    aiResult.classList.add('visible');
-    document.getElementById('aiCodeDisplay').textContent = '';
-    document.getElementById('aiOutputDisplay').innerHTML = '<span class="stderr">' + escapeHtml(err.message) + '</span>';
+    aiError.classList.add('visible');
+    document.getElementById('aiErrorMsg').textContent = err.message || 'Connection failed. Try the Playground tab instead.';
     aiBtn.disabled = false;
   });
 }
