@@ -9,7 +9,8 @@ const DEMO_TIMEOUT_MS = 10_000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 10;
 const AI_RATE_LIMIT_MAX = 5;
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
+const AIR_BASE_URL = process.env.AIR_BASE_URL ?? "https://agentr-air.replit.app/api/ai-proxy/v1";
+const AIR_API_KEY = process.env.AIR_API_KEY ?? "";
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
@@ -35,6 +36,12 @@ function checkRateLimit(ip: string, max: number): boolean {
 const DEMO_LANGUAGES = [
   "python", "javascript", "bash", "go", "rust", "ruby",
   "c", "cpp", "php", "perl", "lua", "r", "java",
+];
+
+const ALLOWED_MODELS = [
+  "claude-sonnet-4-5",
+  "gpt-4o-mini",
+  "gemini-2.5-flash",
 ];
 
 router.post("/run", async (req: Request, res: Response) => {
@@ -114,21 +121,32 @@ router.get("/run-stream", (req: Request, res: Response) => {
   req.on("close", () => { kill(); });
 });
 
-const SYSTEM_PROMPT = `You are RunBox AI — a code execution assistant. The user asks a question or requests a computation. You MUST respond with executable code that answers their question.
-
-Rules:
-- Write ONLY the code, wrapped in a single fenced code block with the language tag
-- Choose the best language for the task (default to Python)
-- Supported languages: python, javascript, bash, go, rust, ruby, c, cpp, php, perl, lua, r, java
-- The code must print its output to stdout
-- Keep code concise and efficient
-- No explanations outside the code block
-- Maximum ~50 lines of code
-
-Example response format:
-\`\`\`python
-print("Hello, world!")
-\`\`\``;
+const SYSTEM_PROMPT = [
+  "You are RunBox AI, a code execution assistant that helps users run code in secure Docker sandboxes.",
+  "The user describes a task. You respond naturally, then write executable code.",
+  "",
+  "Response format:",
+  "1. First, briefly explain what you will do (1-2 short sentences, be direct and helpful)",
+  "2. Then include exactly ONE fenced code block with the language tag",
+  "3. Nothing after the code block",
+  "",
+  "Rules:",
+  "- Choose the best language for the task (default to Python)",
+  "- Supported languages: python, javascript, bash, go, rust, ruby, c, cpp, php, perl, lua, r, java",
+  "- The code must print its output to stdout",
+  "- Keep code concise and efficient, under 50 lines",
+  "- Be friendly and concise in your explanation",
+  "",
+  "Example:",
+  "Sure, I'll generate a secure random password with mixed characters.",
+  "",
+  "```python",
+  "import secrets, string",
+  "chars = string.ascii_letters + string.digits + string.punctuation",
+  "password = ''.join(secrets.choice(chars) for _ in range(20))",
+  "print(password)",
+  "```",
+].join("\n");
 
 router.post("/ai", async (req: Request, res: Response) => {
   const ip = getClientIp(req);
@@ -137,12 +155,12 @@ router.post("/ai", async (req: Request, res: Response) => {
     return;
   }
 
-  if (!ANTHROPIC_API_KEY) {
-    res.status(503).json({ error: "AI service not configured. Set ANTHROPIC_API_KEY environment variable." });
+  if (!AIR_API_KEY) {
+    res.status(503).json({ error: "AI service not configured." });
     return;
   }
 
-  const { prompt } = req.body ?? {};
+  const { prompt, model } = req.body ?? {};
   if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
     res.status(400).json({ error: "prompt is required" });
     return;
@@ -152,40 +170,50 @@ router.post("/ai", async (req: Request, res: Response) => {
     return;
   }
 
+  const selectedModel = ALLOWED_MODELS.includes(model) ? model : "claude-sonnet-4-5";
+
   try {
-    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const aiResponse = await fetch(`${AIR_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${AIR_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "claude-opus-4-20250514",
+        model: selectedModel,
         max_tokens: 1024,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: prompt },
+        ],
       }),
     });
 
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
-      logger.error({ status: aiResponse.status, errText }, "Anthropic API error");
-      const isCredits = errText.includes("credit balance");
-      res.status(502).json({
-        error: isCredits
-          ? "AI service temporarily unavailable (API credits depleted). The Playground tab still works — try running code there!"
-          : "AI service error",
-      });
+      logger.error({ status: aiResponse.status, errText }, "AI gateway error");
+      res.status(502).json({ error: "AI service temporarily unavailable." });
       return;
     }
 
-    const aiData = await aiResponse.json() as { content: Array<{ type: string; text: string }> };
-    const aiText = aiData.content?.find((c: { type: string }) => c.type === "text")?.text ?? "";
+    const aiData = await aiResponse.json() as { choices: Array<{ message: { content: string } }> };
+    const aiText = aiData.choices?.[0]?.message?.content ?? "";
 
     const codeBlockMatch = aiText.match(/```(\w+)\n([\s\S]*?)```/);
+
+    const explanation = codeBlockMatch
+      ? aiText.slice(0, aiText.indexOf("```")).trim()
+      : aiText;
+
     if (!codeBlockMatch) {
-      res.json({ aiResponse: aiText, language: null, code: null, error: "AI did not produce a code block" });
+      res.json({
+        model: selectedModel,
+        explanation,
+        aiResponse: aiText,
+        language: null,
+        code: null,
+        error: "AI did not produce a code block",
+      });
       return;
     }
 
@@ -193,14 +221,23 @@ router.post("/ai", async (req: Request, res: Response) => {
     const code = codeBlockMatch[2].trim();
 
     if (!SUPPORTED_LANGUAGES.includes(language)) {
-      res.json({ aiResponse: aiText, language, code, error: `Unsupported language: ${language}` });
+      res.json({
+        model: selectedModel,
+        explanation,
+        aiResponse: aiText,
+        language,
+        code,
+        error: `Unsupported language: ${language}`,
+      });
       return;
     }
 
     const result = await executeCode(language, code, DEMO_TIMEOUT_MS);
-    logger.info({ ip, prompt: prompt.slice(0, 80), language, exitCode: result.exitCode, ms: result.executionMs }, "AI demo execution");
+    logger.info({ ip, model: selectedModel, prompt: prompt.slice(0, 80), language, exitCode: result.exitCode, ms: result.executionMs }, "AI demo execution");
 
     res.json({
+      model: selectedModel,
+      explanation,
       aiResponse: aiText,
       language,
       code,

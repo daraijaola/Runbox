@@ -281,6 +281,30 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
 }
 .ai-suggestion:hover { background: var(--surface-hover); border-color: var(--border-hover); color: var(--fg); }
 
+.model-selector {
+  display: flex; gap: 10px; justify-content: center;
+  margin-bottom: var(--space-lg); flex-wrap: wrap;
+}
+.model-opt {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 18px; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: var(--radius-lg);
+  cursor: pointer; transition: all 0.2s; font-size: 13px;
+  font-weight: 500; color: var(--fg-muted); font-family: var(--font-sans);
+}
+.model-opt:hover { border-color: var(--border-hover); color: var(--fg); }
+.model-opt.active { border-color: var(--accent); color: var(--fg); background: rgba(79,156,247,0.06); }
+.model-opt input { display: none; }
+.model-logo { width: 18px; height: 18px; flex-shrink: 0; }
+.model-logo svg { width: 100%; height: 100%; }
+
+.ai-explanation {
+  padding: 16px 20px; font-size: 14px; line-height: 1.7;
+  color: var(--fg-muted); border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans); white-space: pre-wrap;
+}
+.ai-explanation:empty { display: none; }
+
 .ai-input-row {
   display: flex; gap: 12px; margin-bottom: var(--space-xl);
   max-width: 700px; margin-left: auto; margin-right: auto;
@@ -664,6 +688,23 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
         <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Generate and test a REST handler</button>
         <button class="ai-suggestion" onclick="setPrompt(this.textContent)">Validate and transform JSON schema</button>
       </div>
+      <div class="model-selector" id="modelSelector">
+        <label class="model-opt active">
+          <input type="radio" name="model" value="claude-sonnet-4-5" checked>
+          <span class="model-logo"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#D97757" d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z"/></svg></span>
+          Claude Sonnet
+        </label>
+        <label class="model-opt">
+          <input type="radio" name="model" value="gpt-4o-mini">
+          <span class="model-logo"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"/></svg></span>
+          GPT-4o Mini
+        </label>
+        <label class="model-opt">
+          <input type="radio" name="model" value="gemini-2.5-flash">
+          <span class="model-logo"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81"/></svg></span>
+          Gemini Flash
+        </label>
+      </div>
       <div class="ai-input-row">
         <input class="ai-input" id="aiInput" type="text" placeholder="Describe a task for the AI agent..." maxlength="500">
         <button class="ai-btn" id="aiBtn" onclick="runAI()">Ask AI</button>
@@ -685,6 +726,7 @@ a { color: inherit; text-decoration: none; transition: color 0.2s; }
             <span class="bar-label" style="margin-left:60px">Result</span>
             <div class="ai-meta" id="aiMeta"></div>
           </div>
+          <div class="ai-explanation" id="aiExplanation"></div>
           <div class="ai-result-grid">
             <div class="pane">
               <div class="pane-label">Generated Code <span class="lang-tag" id="aiLangTag"></span></div>
@@ -920,6 +962,18 @@ document.getElementById('aiInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') { e.preventDefault(); runAI(); }
 });
 
+document.querySelectorAll('.model-opt input').forEach(function(radio) {
+  radio.addEventListener('change', function() {
+    document.querySelectorAll('.model-opt').forEach(function(l) { l.classList.remove('active'); });
+    radio.parentElement.classList.add('active');
+  });
+});
+
+function getSelectedModel() {
+  var checked = document.querySelector('input[name="model"]:checked');
+  return checked ? checked.value : 'claude-sonnet-4-5';
+}
+
 function runAI() {
   var prompt = document.getElementById('aiInput').value.trim();
   if (!prompt) return;
@@ -927,6 +981,7 @@ function runAI() {
   var aiThinking = document.getElementById('aiThinking');
   var aiResult = document.getElementById('aiResult');
   var aiError = document.getElementById('aiError');
+  var model = getSelectedModel();
 
   aiBtn.disabled = true;
   aiThinking.classList.add('visible');
@@ -936,7 +991,7 @@ function runAI() {
   fetch('/api/demo/ai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt: prompt }),
+    body: JSON.stringify({ prompt: prompt, model: model }),
   })
   .then(function(resp) { return resp.json().then(function(data) { return { ok: resp.ok, data: data }; }); })
   .then(function(result) {
@@ -948,6 +1003,10 @@ function runAI() {
       return;
     }
     aiResult.classList.add('visible');
+
+    var explanation = result.data.explanation || '';
+    document.getElementById('aiExplanation').textContent = explanation;
+
     document.getElementById('aiCodeDisplay').textContent = result.data.code || 'No code generated';
     document.getElementById('aiLangTag').textContent = result.data.language || '';
 
@@ -959,6 +1018,7 @@ function runAI() {
     document.getElementById('aiOutputDisplay').innerHTML = output;
 
     var meta = '';
+    if (result.data.model) meta += '<span class="lang-tag">' + result.data.model + '</span>';
     if (result.data.executionMs != null) meta += '<span style="color:var(--green)">' + result.data.executionMs + 'ms</span>';
     if (result.data.exitCode != null) {
       var c = result.data.exitCode === 0 ? 'color:var(--green)' : 'color:var(--red)';
